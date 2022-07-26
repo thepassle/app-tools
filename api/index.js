@@ -35,10 +35,11 @@ function setAbortableTimeout(f, ms, {signal}) {
 
 /**
  * @typedef {object} Config
+ * @property {string} [jsonPrefix='']
  * @property {string} [xsrfHeaderName=X-CSRF-TOKEN]
  * @property {string} [xsrfCookieName=XSRF-TOKEN]
- * @property {Plugin[]} [plugins]
- * @property {'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream'} [responseType]
+ * @property {Plugin[]} [plugins=[]]
+ * @property {'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream'} [responseType=json]
  * @property {string} [baseURL]
  * 
  * @typedef {(url: string, data?: object, opts?: RequestOptions) => Promise<FetchResponse>} BodyMethod
@@ -100,6 +101,7 @@ export class Api {
     this.config = { 
       xsrfCookieName: 'XSRF-TOKEN',
       plugins: [],
+      jsonPrefix: '',
       responseType: 'json',
       ...config 
     };
@@ -206,8 +208,22 @@ export class Api {
         })
         /** [STATUS] */
         .then(handleStatus)
+        /** [JSON PREFIX] */
+        .then(async res => {
+          const { jsonPrefix } = this.config;
+          if(jsonPrefix && responseType === 'json') {
+            let responseAsText = await res.text();
+            
+            if(responseAsText.startsWith(jsonPrefix)) {
+              responseAsText = responseAsText.substring(jsonPrefix.length);
+            }
+
+            return new Response(responseAsText, res);
+          }
+          return res;
+        })
         /** [RESPONSETYPE] */
-        .then(res => res[opts?.responseType || responseType]())
+        .then(res => res[responseType]())
         /** [TRANSFORM] */
         .then(data => opts?.transform?.(data) ?? data)
         /** [CACHE] */

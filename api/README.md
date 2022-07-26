@@ -15,8 +15,9 @@ import { Api } from '@thepassle/app-tools';
 
 const api = new Api({
   xsrfCookieName: 'XSRF-COOKIE',
-  xsrfHeaderName: 'XSRF-COOKIE',
+  xsrfHeaderName: 'X-CSRF-TOKEN',
   baseURL: 'https://api.foo.com',
+  jsonPrefix: `)]}',\n`,
   responseType: 'text',
   plugins: [
     {

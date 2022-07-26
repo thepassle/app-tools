@@ -25,6 +25,7 @@ describe('Api', () => {
       expect(api.config).to.deep.equal({
         plugins: [],
         xsrfCookieName: 'XSRF-TOKEN',
+        jsonPrefix: '',
         responseType: 'json'
       });
     });
@@ -37,6 +38,7 @@ describe('Api', () => {
   
       expect(api.config).to.deep.equal({
         plugins: [],
+        jsonPrefix: '',
         xsrfCookieName: 'foo',
         responseType: 'text'
       });
@@ -84,9 +86,7 @@ describe('Api', () => {
 
   describe('functionality', () => {
     it('defaults', async () => {
-      await api.get('/foo', {
-        method: 'GET'
-      });
+      await api.get('/foo', { method: 'GET' });
 
       const opts = fetchStub.getCall(0).args[1];
 
@@ -95,6 +95,32 @@ describe('Api', () => {
         method: 'GET',
         headers: new Headers()
       });
+    });
+
+    it('throws', async () => {
+      try {
+        await api.get('/foo', { mock: () => new Response('', {status: 400, statusText: 'foo'}) });
+      } catch (e) {
+        expect(e.message).to.equal('foo');
+      }
+    });
+
+    it('get', async () => {
+      const r = await api.get('/foo');
+      expect(r.foo).to.equal('bar');
+    });
+
+    it('post', async () => {
+      const r = await api.post('/foo', {foo:'foo'});
+
+      const opts = fetchStub.getCall(0).args[1];
+
+      expect(opts).to.deep.equal({
+        method: 'POST',
+        headers: new Headers(),
+        body: JSON.stringify({foo: 'foo'})
+      });
+      expect(r.foo).to.equal('bar');
     });
 
     it('native fetch overrides', async () => {
@@ -130,32 +156,20 @@ describe('Api', () => {
     });
 
     it('params', async () => {
-      await api.get('/foo', {
-        params: {foo: 'bar', bar: 'baz'}
-      });
-
+      await api.get('/foo', { params: {foo: 'bar', bar: 'baz'} });
       const url = fetchStub.getCall(0).args[0];
-
       expect(url).to.equal('/foo?foo=bar&bar=baz');
     });
 
     it('appends params correctly', async () => {
-      await api.get('/foo?foo=bar', {
-        params: {bar: 'baz'}
-      });
-
+      await api.get('/foo?foo=bar', { params: {bar: 'baz'} });
       const url = fetchStub.getCall(0).args[0];
-
       expect(url).to.equal('/foo?foo=bar&bar=baz');
     });
 
     it('baseURL', async () => {
-      await api.get('/foo', {
-        baseURL: 'https://api.foo.com'
-      });
-
+      await api.get('/foo', { baseURL: 'https://api.foo.com' });
       const url = fetchStub.getCall(0).args[0];
-
       expect(url).to.equal('https://api.foo.com/foo');
     });
 
@@ -193,6 +207,39 @@ describe('Api', () => {
           afterFetch: (res) => {
             expect(res.status).to.equal(222);
             expect(res.statusText).to.equal('foo');
+            return res;
+          }
+        }]
+      });
+      expect(result.bar).to.equal('bar');
+    });
+
+    it('JSON Prefix', async () => {
+      api = new Api({jsonPrefix: `)]}',\n`});
+
+      const result = await api.get('/foo', {
+        mock: () => new Response(`)]}',\n${JSON.stringify({bar: 'bar'})}`, {status: 222, statusText: 'foo'}),
+        plugins: [{
+          afterFetch: (res) => {
+            expect(res.status).to.equal(222);
+            expect(res.statusText).to.equal('foo');
+            return res;
+          }
+        }]
+      });
+      expect(result.bar).to.equal('bar');
+    });
+
+    it('JSON Prefix, response without prefix', async () => {
+      api = new Api({jsonPrefix: `)]}',\n`});
+
+      const result = await api.get('/foo', {
+        mock: () => new Response(JSON.stringify({bar: 'bar'}), {status: 222, statusText: 'foo'}),
+        plugins: [{
+          afterFetch: (res) => {
+            expect(res.status).to.equal(222);
+            expect(res.statusText).to.equal('foo');
+            return res;
           }
         }]
       });
