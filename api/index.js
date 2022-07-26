@@ -19,20 +19,23 @@ function handleStatus(response) {
 }
 
 /**
- * 
- * @param {() => void} fn 
+ * @param {() => void} f 
  * @param {number} ms 
  * @param {{
  *  signal?: AbortSignal
  * }} options
  */
-function setAbortableTimeout(fn, ms, {signal}) {
-  const timeout = setTimeout(fn, ms);
-  !signal?.aborted && signal?.addEventListener('abort', () => clearTimeout(timeout), {});
+function setAbortableTimeout(f, ms, {signal}) {
+  let t;
+  if(!signal?.aborted) {
+    t = setTimeout(f, ms);
+  }
+  signal?.addEventListener('abort', () => clearTimeout(t), {once: true});
 };
 
 /**
  * @typedef {object} Config
+ * @property {string} [xsrfHeaderName=X-CSRF-TOKEN]
  * @property {string} [xsrfCookieName=XSRF-TOKEN]
  * @property {Plugin[]} [plugins]
  * @property {'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream'} [responseType]
@@ -120,12 +123,13 @@ export class Api {
 
     const baseURL = opts?.baseURL ?? this.config?.baseURL ?? '';
     const responseType = opts?.responseType ?? this.config.responseType;
-    
+    const xsrfHeaderName = this.config.xsrfHeaderName ?? 'X-CSRF-TOKEN';
+
     const requestKey = `${method}:${url}`;
 
     const headers = new Headers({
       'Content-Type': 'application/json',
-      ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+      ...(csrfToken ? { [xsrfHeaderName]: csrfToken } : {}),
       ...opts?.headers
     });
 

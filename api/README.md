@@ -15,6 +15,7 @@ import { Api } from '@thepassle/app-tools';
 
 const api = new Api({
   xsrfCookieName: 'XSRF-COOKIE',
+  xsrfHeaderName: 'XSRF-COOKIE',
   baseURL: 'https://api.foo.com',
   responseType: 'text',
   plugins: [
@@ -173,7 +174,7 @@ api.get(url, {
     {
       beforeFetch: ({url, method, opts, data}) => {},
       afterFetch: (res) => {
-        if(res.status === 401) {
+        if(res.status === 401 || res.status === 403) {
           logout();
         }
         return res;
