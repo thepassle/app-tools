@@ -262,3 +262,13 @@ const myPlugin = {
 
 api.addplugin(myPlugin);
 ```
+
+#### Returning a new response entirely
+
+You can also overwrite the response entirely by returning a new `Response`
+
+```js
+api.addplugin({
+  afterFetch: async (res) => new Response(JSON.stringify({overwritten: true}), res);
+});
+```
