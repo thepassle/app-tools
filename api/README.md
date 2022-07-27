@@ -24,7 +24,7 @@ const api = new Api({
   responseType: 'text',
   plugins: [
     {
-      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -128,7 +128,7 @@ api.put(url, data, opts);
 api.patch(url, data, opts);
 
 api.addPlugin({
-  beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+  beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
   afterFetch: (res) => res,
   transform: (data) => data,
   handleError: (e) => true
@@ -144,7 +144,7 @@ api.get(url, {
   params: { foo: 'bar' },
   plugins: [
     {
-      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -190,7 +190,7 @@ An array of plugins.
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -207,7 +207,7 @@ You can also use plugins. You can add plugins on a per-request basis, or you can
 const api = new Api({
   plugins: [
     {
-      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -230,7 +230,7 @@ Or you can add them on a per request basis:
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -314,7 +314,7 @@ api.addPlugin(requestLogger());
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => {
         if(res.status === 401 || res.status === 403) {
           logout();
@@ -355,6 +355,21 @@ api.addPlugin({
   afterFetch: async (res) => new Response(JSON.stringify({foo: 'bar'}), res);
 });
 ```
+
+#### Overwriting the `fetch` implementation
+
+You can also overwrite the `fetch` implementation to use:
+
+```js
+api.addPlugin({
+  beforeFetch: (meta) => ({
+    ...meta,
+    fetchFn: () => Promise.resolve(new Response('{}'))
+  })
+})
+```
+
+Do note that if you use multiple plugins that overwrite the `fetchFn`, the last plugin to overwrite the `fetchFn` will win, there can only be one `fetchFn`.
 
 #### Transforming data
 
