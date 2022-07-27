@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -11,12 +11,24 @@
   "exports": {
     "./state.js": "./state.js",
     "./api.js": "./api.js",
+    "./api/plugins/abort.js": "./api/plugins/abort.js",
+    "./api/plugins/cache.js": "./api/plugins/cache.js",
+    "./api/plugins/delay.js": "./api/plugins/delay.js",
+    "./api/plugins/jsonPrefix.js": "./api/plugins/jsonPrefix.js",
+    "./api/plugins/mock.js": "./api/plugins/mock.js",
+    "./api/plugins/logger.js": "./api/plugins/logger.js",
     "./utils.js": "./utils.js",
     "./package.json": "./package.json"
   },
   "files": [
     "./api.js",
     "./api/index.js",
+    "./api/plugins/abort.js",
+    "./api/plugins/cache.js",
+    "./api/plugins/delay.js",
+    "./api/plugins/jsonPrefix.js",
+    "./api/plugins/mock.js",
+    "./api/plugins/logger.js",
     "./state.js",
     "./state/index.js",
     "./utils.js",

@@ -1,0 +1,37 @@
+<html>
+  <body>
+    <button style="width: 600px; height:200px" id="btn">click</button>
+    <button style="width: 600px; height:200px" id="btn2">error</button>
+    <script type="module">
+      import { Api } from './api.js';
+      import { abort } from './api/plugins/abort.js';
+      import { logger } from './api/plugins/logger.js';
+
+      const api = new Api({plugins: [
+        abort,
+        // logger,
+        {
+          // handleError: (e) => {
+            // console.log('[inline plugin]:', e);
+          // }
+        }
+      ]});
+      
+      btn.addEventListener('click', async () => {
+        try {
+          await api.get('https://pokeapi.co/api/v2/pokemon/1');
+        } catch (e) {
+          console.error('✅', e)
+        }
+      })
+
+      btn2.addEventListener('click', async () => {
+        try {
+          await api.get('https://poasdfasdfkeapi.co/api/v2/pokemon/1');
+        } catch(e) {
+          console.log('11111 ✅', e);
+        }
+      })
+    </script>
+  </body>
+</html>

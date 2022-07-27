@@ -11,24 +11,109 @@ npm i -S @thepassle/app-tools
 ## Usage
 
 ```js
-import { Api } from '@thepassle/app-tools';
+import { Api } from '@thepassle/app-tools/api.js';
 
+/** Using defaults: */
+const api = new Api();
+
+/** Or with configuration: */
 const api = new Api({
   xsrfCookieName: 'XSRF-COOKIE',
   xsrfHeaderName: 'X-CSRF-TOKEN',
   baseURL: 'https://api.foo.com',
-  jsonPrefix: `)]}',\n`,
   responseType: 'text',
   plugins: [
     {
-      beforeFetch: ({url, method, opts, data}) => {},
+      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
+      transform: (data) => data,
+      handleError: (e) => true
     }
   ]
 });
 
 const user = await api.get('/users/1');
 await api.post('/form/submit', { name: 'John Doe', email: 'johndoe@internet.com' });
+```
+
+## Composable
+
+Use plugins to customize your requests to fit your needs
+
+### `logger`
+
+```js
+import { logger, loggerPlugin } from '@thepassle/app-tools/api/plugins/logger.js';
+
+/** Logs metadata to the console */
+api.get(url, {plugins: [logger]});
+
+/** Or */
+const logger = loggerPlugin({collapsed: false});
+api.get(url, {plugins: [logger]});
+```
+
+### `cache`
+
+```js
+import { cache, cachePlugin } from '@thepassle/app-tools/api/plugins/cache.js';
+
+/** Caches the response for a default of 10 minutes */
+api.get(url, {plugins: [cache]});
+
+/** Or */
+const cache = cachePlugin({maxAge: 1000});
+api.get(url, {plugins: [cache]});
+```
+
+### `abort`
+
+```js
+import { abort } from '@thepassle/app-tools/api/plugins/abort.js';
+
+/** Aborts previous, unfinished requests via an AbortController if requests are fired in quick succession, like spammy clicks on buttons */
+api.get(url, {plugins: [abort]});
+```
+
+### `mock`, `delay`
+
+```js
+import { mock } from '@thepassle/app-tools/api/plugins/mock.js';
+import { delay, delayPlugin } from '@thepassle/app-tools/api/plugins/delay.js';
+
+/** Easily mock requests during development using the native `Response` object */
+api.get(url, {
+  plugins: [
+    mock(() => new Response(JSON.stringify({foo: 'bar'}))),
+    delay // defaults to 1000ms
+  ]
+});
+
+/** Or */
+const delay = delayPlugin(2000);
+api.get(url, {plugins: [delay]});
+```
+
+### `jsonPrefix`
+
+```js
+import { jsonPrefix, jsonPrefixPlugin } from '@thepassle/app-tools/api/plugins/jsonPrefix.js';
+
+/** Add plugins to run on all requests */
+const api = new Api({ plugins: [jsonPrefix] });
+
+/** Or */
+const jsonPrefix = jsonPrefixPlugin('<prefix>');
+const api = new Api({ plugins: [jsonPRefix] });
+```
+
+### Other
+
+```js
+import { logger } from '@thepassle/app-tools/api/plugins/logger.js';
+
+/** Add plugins to run on all requests */
+const api = new Api({ plugins: [logoutOnUnauthorized, logger] });
 ```
 
 ## Methods
@@ -43,8 +128,10 @@ api.put(url, data, opts);
 api.patch(url, data, opts);
 
 api.addPlugin({
-  beforeFetch: ({url, method, opts, data}) => {},
+  beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
   afterFetch: (res) => res,
+  transform: (data) => data,
+  handleError: (e) => true
 });
 ```
 
@@ -54,21 +141,13 @@ api.addPlugin({
 api.get(url, {
   baseURL: 'https://api.foo.com',
   responseType: 'text',
-  transform: (data) => data,
-  useAbort: true,
-  useCache: true,
-  cacheOptions: {
-    maxAge: 1000 * 60 * 5
-  },
-  params: {
-    foo: 'bar',
-  },
-  delay: 2000,
-  mock: ({url, method, opts, data}) => new Response(JSON.stringify({}), {status: 200}),
+  params: { foo: 'bar' },
   plugins: [
     {
-      beforeFetch: ({url, method, opts, data}) => {},
+      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
+      transform: (data) => data,
+      handleError: (e) => true
     }
   ],
 
@@ -95,74 +174,12 @@ Overwrite the default responseType (`'json'`)
 api.get(url, { responseType: 'text' });
 ```
 
-### `transform`
-
-Callback to transform your data. Gets called after the response body has been read to completion, and handled according to the `responseType` option. E.g.: the response has been `res.json()`-ified.
-
-```js
-api.get(url, {
-  transform: (data) => {
-    data.foo = 'bar';
-    return data;
-  }
-});
-```
-
-### `useAbort`
-
-Whether or not to use an `abortSignal` to cancel subsequent requests that may get fired in quick succession. Defaults to `false`
-
-```js
-api.get(url, { useAbort: true });
-```
-
-### `useCache`
-
-Whether or not to cache responses. Defaults to `false`. When set to `true`, it will by default cache a request for 10 minutes. This can be customized via `cacheOptions`
-
-```js
-api.get(url, { useCache: true });
-```
-
-### `cacheOptions`
-
-Configure the duration a response should be cached for
-
-```js
-api.get(url, { 
-  useCache: true,
-  cacheOptions: {
-    maxAge: 1000 * 60 * 5, // 5 minutes
-  }
-});
-```
-
 ### `params`
 
 An object to be queryParam-ified and added to the request url
 
 ```js
 api.get(url, { params: { foo: 'bar' } });
-```
-
-### `delay`
-
-Adds an artifical delay to resolving of the request, useful for local testing and debugging
-
-```js
-api.get(url, { delay: 5000 });
-```
-
-### `mock`
-
-Return a custom [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response) with mock data instead of actually sending the request to the network. Can be used in combination with `delay` as well.
-
-```js
-api.get(url, {
-  mock: ({url, method, opts, data}) => new Response(JSON.stringify({foo:'bar'}), {status: 200}),
-  // Can be used in combination with `delay`
-  delay: 2000,
-})
 ```
 
 ### `plugins`
@@ -173,13 +190,10 @@ An array of plugins.
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, method, opts, data}) => {},
-      afterFetch: (res) => {
-        if(res.status === 401 || res.status === 403) {
-          logout();
-        }
-        return res;
-      }
+      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      afterFetch: (res) => res,
+      transform: (data) => data,
+      handleError: (e) => true
     }
   ]
 })
@@ -193,8 +207,10 @@ You can also use plugins. You can add plugins on a per-request basis, or you can
 const api = new Api({
   plugins: [
     {
-      beforeFetch: ({url, method, opts, data}) => {},
+      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
+      transform: (data) => data,
+      handleError: (e) => true
     }
   ]
 });
@@ -214,16 +230,65 @@ Or you can add them on a per request basis:
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, method, opts, data}) => {},
+      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
+      transform: (data) => data,
+      handleError: (e) => true
     }
   ]
 });
 ```
 
+### `beforeFetch`
 
+Run logic before the actual `fetch` call happens, or alter/modify the meta information of a request.
+If you want to alter or modify the meta information of a request, make sure to return the value.
 
-### Examples
+```js
+api.get('/foo', {
+  plugins: [{
+    beforeFetch: (meta) => ({...meta, url: '/bar'})
+  }]
+});
+
+// RESULT: url `/bar` gets called instead of `/foo`
+```
+
+If you dont want to alter or modify any meta information of the request, you dont have to return anything.
+```js
+{ 
+  beforeFetch: ({url}) => {
+    console.log(url)
+  } 
+}
+```
+
+### `afterFetch`
+
+Runs immediately after the `fetch` call happened. `afterFetch` should always return a `Response`:
+```js
+{ afterFetch: (res) => res; }
+{ afterFetch: (res) => new Response(JSON.stringify({foo: 'bar'}), res); }
+```
+
+### `transform`
+
+Runs after the `Response` object has been handled according to the `responseType`, (e.g.: `res.json()`). Can be used to transform the returned data:
+Should always return the data.
+
+```js
+{ transform: (data) => data }
+```
+
+### `handleError`
+
+Whether or not an error should throw. Return `true` if an error should throw, return `false` if an error should be ignored.
+
+```js
+{ handleError: (e) => e.message !== 'AbortError' }
+```
+
+### Plugin Examples
 
 #### Request logger
 
@@ -243,24 +308,42 @@ function requestLogger() {
 api.addPlugin(requestLogger());
 ```
 
-#### Accessing response data in plugins
+#### Automatic logout on 401 or 403
 
-If you want to access the data of your response in a plugin, make sure to clone the response:
+```js
+api.get(url, {
+  plugins: [
+    {
+      beforeFetch: ({url, responseType, baseURL, method, opts, data}) => {},
+      afterFetch: (res) => {
+        if(res.status === 401 || res.status === 403) {
+          logout();
+        }
+        return res;
+      }
+    }
+  ]
+});
+```
+
+#### Accessing the response body in `afterFetch`
+
+If you want to access the response body of your response in a plugin, make sure to clone the response:
 
 ```js
 const myPlugin = {
-  afterFetch: async (res) => {
-    const clone = res.clone();
-    const data = await clone.json();
+  afterFetch: async (originalResponse) => {
+    const clone = originalResponse.clone();
+    let data = await clone.text(); // or `.json()` etc
+
+    data = data.replaceAll('foo', 'bar');
     
-    console.log(data); // do something with your data
-    
-    // Always make sure to return the original response
-    return res;
+    // Always make sure to return a `Response`
+    return new Response(data, originalResponse);
   }
 }
 
-api.addplugin(myPlugin);
+api.addPlugin(myPlugin);
 ```
 
 #### Returning a new response entirely
@@ -268,7 +351,19 @@ api.addplugin(myPlugin);
 You can also overwrite the response entirely by returning a new `Response`
 
 ```js
-api.addplugin({
-  afterFetch: async (res) => new Response(JSON.stringify({overwritten: true}), res);
+api.addPlugin({
+  afterFetch: async (res) => new Response(JSON.stringify({foo: 'bar'}), res);
 });
+```
+
+#### Transforming data
+
+```js
+api.addPlugin({
+  // Adds a `.foo` property to all of your response data
+  transform: (data) => {
+    data.foo = 'bar';
+    return data;
+  }
+})
 ```

@@ -1,7 +1,12 @@
 import { expect } from '@open-wc/testing';
 import { stub } from 'sinon';
 import { Api } from './index.js';
+import { jsonPrefix } from './plugins/jsonPrefix.js';
+import { mock } from './plugins/mock.js';
+import { cache, cachePlugin } from './plugins/cache.js';
+import { abort } from './plugins/abort.js';
 
+const response = () => new Response(JSON.stringify({bar: 'bar'}), {status: 222, statusText: 'foo'});
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 describe('Api', () => {
@@ -11,9 +16,9 @@ describe('Api', () => {
   beforeEach(() => {
     api = new Api();
     fetchStub = stub(globalThis, 'fetch');
-    fetchStub.onCall(0).resolves(new Response(JSON.stringify({foo: 'bar'}, {status: 200})));
-    fetchStub.onCall(1).resolves(new Response(JSON.stringify({foo: 'bar'}, {status: 200})));
-    fetchStub.onCall(2).resolves(new Response(JSON.stringify({foo: 'bar'}, {status: 200})));
+    fetchStub.onCall(0).resolves(new Response(JSON.stringify({foo: 'bar'}), {status: 200}));
+    fetchStub.onCall(1).resolves(new Response(JSON.stringify({foo: 'bar'}), {status: 200}));
+    fetchStub.onCall(2).resolves(new Response(JSON.stringify({foo: 'bar'}), {status: 200}));
   });
 
   afterEach(() => {
@@ -25,7 +30,6 @@ describe('Api', () => {
       expect(api.config).to.deep.equal({
         plugins: [],
         xsrfCookieName: 'XSRF-TOKEN',
-        jsonPrefix: '',
         responseType: 'json'
       });
     });
@@ -38,7 +42,6 @@ describe('Api', () => {
   
       expect(api.config).to.deep.equal({
         plugins: [],
-        jsonPrefix: '',
         xsrfCookieName: 'foo',
         responseType: 'text'
       });
@@ -67,12 +70,15 @@ describe('Api', () => {
       expect(beforeStub.getCall(0).firstArg).to.deep.equal({
         data: undefined,
         method: 'GET',
+        fetchFn: window.fetch,
         opts: {
           plugins: [{
             afterFetch: afterStub,
             beforeFetch: beforeStub
           }]
         },
+        baseURL: '',
+        responseType: 'json',
         url: '/foo'
       })
 
@@ -81,6 +87,16 @@ describe('Api', () => {
       expect(afterArgs.status).to.equal(200);
       expect(afterArgs.ok).to.equal(true);
       expect(afterArgs.statusText).to.equal('');
+    });
+
+    it('overrides MetaParams', async () => {
+      await api.get('/foo', {
+        plugins: [{
+          beforeFetch: (meta) => ({...meta, url: '/bar'})
+        }]
+      })
+      const url = fetchStub.getCall(0).args[0];
+      expect(url).to.equal('/bar');
     });
   });
 
@@ -99,7 +115,7 @@ describe('Api', () => {
 
     it('throws', async () => {
       try {
-        await api.get('/foo', { mock: () => new Response('', {status: 400, statusText: 'foo'}) });
+        await api.get('/foo', { plugins: [mock(() => new Response('', {status: 400, statusText: 'foo'}))] });
       } catch (e) {
         expect(e.message).to.equal('foo');
       }
@@ -172,78 +188,117 @@ describe('Api', () => {
       const url = fetchStub.getCall(0).args[0];
       expect(url).to.equal('https://api.foo.com/foo');
     });
+  });
 
-    it('transform', async () => {
-      const result = await api.get('/foo', {
-        transform: data => {
+  // @TODO test for abort plugin
+  describe('plugins', () => {
+    describe('transform', () => {
+      it('transforms data', async () => {
+        const result = await api.get('/foo', {plugins: [{transform: (data) => {
           data.foo = 'bar';
           return data;
+        }}]})
+        expect(result.foo).to.equal('bar');
+      })
+    });
+
+    describe('jsonPrefix', () => {
+      it('JSON Prefix', async () => {
+        api = new Api({ plugins: [ jsonPrefix ]});
+  
+        const result = await api.get('/foo', {
+          plugins: [
+            mock(response()),
+            {
+              afterFetch: (res) => {
+                expect(res.status).to.equal(222);
+                expect(res.statusText).to.equal('foo');
+                return res;
+              }
+            }
+          ]
+        });
+        expect(result.bar).to.equal('bar');
+      });
+  
+      it('JSON Prefix, response without prefix', async () => {
+        api = new Api({ plugins: [jsonPrefix] });
+  
+        const result = await api.get('/foo', {
+          plugins: [
+            mock(response()),
+            {
+              afterFetch: (res) => {
+                expect(res.status).to.equal(222);
+                expect(res.statusText).to.equal('foo');
+                return res;
+              }
+            }
+          ]
+        });
+        expect(result.bar).to.equal('bar');
+      });
+    });
+
+    describe('mock', () => {
+      it('mocks requests', async () => {
+        const result = await api.get('/foo', {
+          plugins: [
+            mock(response())
+          ]
+        });
+        expect(result.bar).to.equal('bar');
+      });
+
+      it('mocks requests', async () => {
+        const result = await api.get('/foo', {
+          plugins: [
+            mock(response())
+          ]
+        });
+        expect(result.bar).to.equal('bar');
+      });
+    });
+
+    describe('cache', () => {
+      it('useCache', async () => {
+        await api.get('/foo', {plugins: [cache]});
+        await api.get('/foo', {plugins: [cache]});
+  
+        expect(fetchStub.callCount).to.equal(1);
+      });
+  
+      it('cacheOptions', async () => {
+        const c = cachePlugin({maxAge: 5});
+        await api.get('/foo', {plugins: [c] });
+        await api.get('/foo', {plugins: [c] });
+        expect(fetchStub.callCount).to.equal(1);
+        await sleep(10);
+        await api.get('/foo', {plugins: [c] });
+        expect(fetchStub.callCount).to.equal(2);
+      }); 
+    });
+
+    describe('abort', () => {
+      it('abort', async () => {
+        const originalAbort = window.AbortController;
+        const abortStub = stub();
+        window.AbortController = class {
+          signal;
+          abort = abortStub;
         }
+
+        api.get('/foo', {plugins: [abort]});
+        await api.get('/foo', {plugins: [abort]});
+  
+        expect(abortStub.callCount).to.equal(1);
+        window.AbortController = originalAbort;
       });
 
-      expect(result.foo).to.equal('bar');
-    });
-
-    it('useCache', async () => {
-      await api.get('/foo', {useCache: true});
-      await api.get('/foo', {useCache: true});
-
-      expect(fetchStub.callCount).to.equal(1);
-    });
-
-    it('cacheOptions', async () => {
-      await api.get('/foo', {useCache: true, cacheOptions: {maxAge: 5}});
-      await api.get('/foo', {useCache: true, cacheOptions: {maxAge: 5}});
-      expect(fetchStub.callCount).to.equal(1);
-      await sleep(10);
-      await api.get('/foo', {useCache: true, cacheOptions: {maxAge: 5}});
-      expect(fetchStub.callCount).to.equal(2);
-    });
-
-    it('mock', async () => {
-      const result = await api.get('/foo', {
-        mock: () => new Response(JSON.stringify({bar: 'bar'}), {status: 222, statusText: 'foo'}),
-        plugins: [{
-          afterFetch: (res) => {
-            expect(res.status).to.equal(222);
-            expect(res.statusText).to.equal('foo');
-            return res;
-          }
-        }]
+      it('abort error handling', async () => {
+        api.get('/foo', {plugins: [abort]});
+        await api.get('/foo', {plugins: [abort]});
       });
-      expect(result.bar).to.equal('bar');
-    });
-
-    it('JSON Prefix', async () => {
-      api = new Api({jsonPrefix: `)]}',\n`});
-
-      const result = await api.get('/foo', {
-        mock: () => new Response(`)]}',\n${JSON.stringify({bar: 'bar'})}`, {status: 222, statusText: 'foo'}),
-        plugins: [{
-          afterFetch: (res) => {
-            expect(res.status).to.equal(222);
-            expect(res.statusText).to.equal('foo');
-            return res;
-          }
-        }]
-      });
-      expect(result.bar).to.equal('bar');
-    });
-
-    it('JSON Prefix, response without prefix', async () => {
-      api = new Api({jsonPrefix: `)]}',\n`});
-
-      const result = await api.get('/foo', {
-        mock: () => new Response(JSON.stringify({bar: 'bar'}), {status: 222, statusText: 'foo'}),
-        plugins: [{
-          afterFetch: (res) => {
-            expect(res.status).to.equal(222);
-            expect(res.statusText).to.equal('foo');
-            return res;
-          }
-        }]
-      });
-      expect(result.bar).to.equal('bar');
-    });
+    })
   });
 });
