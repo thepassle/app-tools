@@ -40,7 +40,7 @@ function handleStatus(response) {
  *  headers: Headers,
  *  opts?: RequestOptions,
  *  data?: any,
- *  fetchFn: typeof window.fetch
+ *  fetchFn: typeof globalThis.fetch
  * }} MetaParams
  */
 
@@ -82,7 +82,7 @@ export class Api {
   async fetch(url, method, opts, data) {
     const plugins = [...this.config.plugins, ...(opts?.plugins || [])];
 
-    let fetchFn = window.fetch;
+    let fetchFn = globalThis.fetch;
     let baseURL = opts?.baseURL ?? this.config?.baseURL ?? '';
     let responseType = opts?.responseType ?? this.config.responseType;
     let headers = new Headers({
