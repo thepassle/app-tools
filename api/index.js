@@ -46,7 +46,7 @@ function handleStatus(response) {
  *  method: Method,
  *  opts?: RequestOptions,
  *  data?: any,
- *  fetchFn?: typeof window.fetch
+ *  fetchFn?: typeof globalThis.fetch
  * }} MetaParams
  */
 
@@ -92,7 +92,7 @@ export class Api {
     const csrfToken = getCookie(this.config.xsrfCookieName);
     const xsrfHeaderName = this.config.xsrfHeaderName ?? 'X-CSRF-TOKEN';
 
-    let fetchFn = window.fetch;
+    let fetchFn = globalThis.fetch;
     let baseURL = opts?.baseURL ?? this.config?.baseURL ?? '';
     let responseType = opts?.responseType ?? this.config.responseType;
 
