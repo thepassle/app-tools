@@ -1,8 +1,3 @@
-function getCookie(name, _document = document) {
-  const match = _document.cookie.match(new RegExp(`(^|;\\s*)(${name})=([^;]*)`));
-  return match ? decodeURIComponent(match[3]) : null;
-}
-
 function handleStatus(response) {
   if (!response.ok) {
     throw new Error(response.statusText);
@@ -12,8 +7,6 @@ function handleStatus(response) {
 
 /**
  * @typedef {object} Config
- * @property {string} [xsrfHeaderName=X-CSRF-TOKEN]
- * @property {string} [xsrfCookieName=XSRF-TOKEN]
  * @property {Plugin[]} [plugins=[]]
  * @property {'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream'} [responseType=json]
  * @property {string} [baseURL]
@@ -44,16 +37,16 @@ function handleStatus(response) {
  *  baseURL: string,
  *  url: string,
  *  method: Method,
+ *  headers: Headers,
  *  opts?: RequestOptions,
  *  data?: any,
- *  fetchFn?: typeof window.fetch
+ *  fetchFn: typeof window.fetch
  * }} MetaParams
  */
 
 /**
  * @example 
  * const api = new Api({
- *  xsrfCookieName: 'XSRF-COOKIE',
  *  baseURL: 'https://api.foo.com/',
  *  responseType: 'text',
  *  plugins: [
@@ -68,7 +61,6 @@ export class Api {
   /** @param {Config} config */
   constructor(config = {}) {
     this.config = { 
-      xsrfCookieName: 'XSRF-TOKEN',
       plugins: [],
       responseType: 'json',
       ...config 
@@ -89,16 +81,12 @@ export class Api {
    */
   async fetch(url, method, opts, data) {
     const plugins = [...this.config.plugins, ...(opts?.plugins || [])];
-    const csrfToken = getCookie(this.config.xsrfCookieName);
-    const xsrfHeaderName = this.config.xsrfHeaderName ?? 'X-CSRF-TOKEN';
 
     let fetchFn = window.fetch;
     let baseURL = opts?.baseURL ?? this.config?.baseURL ?? '';
     let responseType = opts?.responseType ?? this.config.responseType;
-
-    const headers = new Headers({
+    let headers = new Headers({
       'Content-Type': 'application/json',
-      ...(csrfToken ? { [xsrfHeaderName]: csrfToken } : {}),
       ...opts?.headers
     });
 
@@ -111,9 +99,9 @@ export class Api {
     }
 
     for(const { beforeFetch } of plugins) {
-      const overrides = await beforeFetch?.({ responseType, fetchFn, baseURL, url, method, opts, data });
+      const overrides = await beforeFetch?.({ responseType, headers, fetchFn, baseURL, url, method, opts, data });
       if(overrides) {
-        ({ responseType, fetchFn, baseURL, url, method, opts, data } = {...overrides});
+        ({ responseType, headers, fetchFn, baseURL, url, method, opts, data } = {...overrides});
       }
     }
 

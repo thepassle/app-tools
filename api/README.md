@@ -18,13 +18,11 @@ const api = new Api();
 
 /** Or with configuration: */
 const api = new Api({
-  xsrfCookieName: 'XSRF-COOKIE',
-  xsrfHeaderName: 'X-CSRF-TOKEN',
   baseURL: 'https://api.foo.com',
   responseType: 'text',
   plugins: [
     {
-      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -107,6 +105,22 @@ const jsonPrefix = jsonPrefixPlugin('<prefix>');
 const api = new Api({ plugins: [jsonPRefix] });
 ```
 
+### `xsrf`
+
+```js
+import { xsrf, xsrfPlugin } from '@thepassle/app-tools/api/plugins/xsrf.js';
+
+/** Add plugins to run on all requests */
+const api = new Api({ plugins: [xsrf] });
+
+/** Or */
+const xsrf = xsrfPlugin({
+  xsrfCookieName: '',
+  xsrfHeaderName: ''
+});
+const api = new Api({ plugins: [xsrf] });
+```
+
 ### Other
 
 ```js
@@ -128,7 +142,7 @@ api.put(url, data, opts);
 api.patch(url, data, opts);
 
 api.addPlugin({
-  beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+  beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
   afterFetch: (res) => res,
   transform: (data) => data,
   handleError: (e) => true
@@ -144,7 +158,7 @@ api.get(url, {
   params: { foo: 'bar' },
   plugins: [
     {
-      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -190,7 +204,7 @@ An array of plugins.
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -207,7 +221,7 @@ You can also use plugins. You can add plugins on a per-request basis, or you can
 const api = new Api({
   plugins: [
     {
-      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -230,7 +244,7 @@ Or you can add them on a per request basis:
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
       handleError: (e) => true
@@ -314,7 +328,7 @@ api.addPlugin(requestLogger());
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
       afterFetch: (res) => {
         if(res.status === 401 || res.status === 403) {
           logout();

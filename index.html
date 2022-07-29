@@ -7,15 +7,17 @@
       import { Api } from './api.js';
       import { abort } from './api/plugins/abort.js';
       import { logger } from './api/plugins/logger.js';
-      console.log(pwa);
+      import { xsrf } from './api/plugins/xsrf.js';
+
       const api = new Api({plugins: [
-        abort,
+        // abort,
+        xsrf,
         // logger,
-        {
+        // {
           // handleError: (e) => {
             // console.log('[inline plugin]:', e);
           // }
-        }
+        // }
       ]});
       
       btn.addEventListener('click', async () => {
