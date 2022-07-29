@@ -10,6 +10,7 @@
   },
   "exports": {
     "./state.js": "./state.js",
+    "./pwa.js": "./pwa.js",
     "./api.js": "./api.js",
     "./api/plugins/abort.js": "./api/plugins/abort.js",
     "./api/plugins/cache.js": "./api/plugins/cache.js",

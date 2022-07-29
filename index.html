@@ -3,10 +3,11 @@
     <button style="width: 600px; height:200px" id="btn">click</button>
     <button style="width: 600px; height:200px" id="btn2">error</button>
     <script type="module">
+      import { pwa } from './pwa.js';
       import { Api } from './api.js';
       import { abort } from './api/plugins/abort.js';
       import { logger } from './api/plugins/logger.js';
-
+      console.log(pwa);
       const api = new Api({plugins: [
         abort,
         // logger,
