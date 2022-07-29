@@ -13,6 +13,10 @@ Sets up global listeners for `'beforeinstallprompt'`, `'controllerchange'` as a 
 ```js
 import { pwa } from '@thepassle/app-tools/pwa.js'; 
 
+pwa.updateAvailable; // false
+pwa.installable; // false
+pwa.installPrompt; // undefined
+
 /** Fires an event when the PWA is considered installable by the browser */
 pwa.addEventListener('installable', () => {
   pwa.installable; // true
