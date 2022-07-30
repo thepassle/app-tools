@@ -14,7 +14,6 @@ export function xsrfPlugin({
   xsrfHeaderName = 'X-CSRF-TOKEN'
 } = {}) {
   const csrfToken = getCookie(xsrfCookieName);
-
   return {
     beforeFetch: (meta) => {
       if(csrfToken) {

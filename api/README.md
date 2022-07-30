@@ -167,7 +167,7 @@ api.get(url, {
 
   // Also supports all the options of the native fetch API
   // mode, credentials, cache, redirect, referrer, integrity, keepalive, signal, referrerPolicy, headers, method
-})
+});
 ```
 
 ## Options

@@ -3,6 +3,7 @@ import { stub } from 'sinon';
 import { Api } from './index.js';
 import { jsonPrefix } from './plugins/jsonPrefix.js';
 import { mock } from './plugins/mock.js';
+import { xsrf } from './plugins/xsrf.js';
 import { cache, cachePlugin } from './plugins/cache.js';
 import { abort } from './plugins/abort.js';
 
@@ -29,20 +30,17 @@ describe('Api', () => {
     it('Sets correctly defaults', () => {
       expect(api.config).to.deep.equal({
         plugins: [],
-        xsrfCookieName: 'XSRF-TOKEN',
         responseType: 'json'
       });
     });
 
     it('Overrides default config correctly', () => {
       api = new Api({
-        xsrfCookieName: 'foo',
         responseType: 'text'
       });
   
       expect(api.config).to.deep.equal({
         plugins: [],
-        xsrfCookieName: 'foo',
         responseType: 'text'
       });
     });
@@ -71,6 +69,7 @@ describe('Api', () => {
         data: undefined,
         method: 'GET',
         fetchFn: window.fetch,
+        headers: new Headers(),
         opts: {
           plugins: [{
             afterFetch: afterStub,
@@ -298,6 +297,20 @@ describe('Api', () => {
       it('abort error handling', async () => {
         api.get('/foo', {plugins: [abort]});
         await api.get('/foo', {plugins: [abort]});
+      });
+    });
+
+    describe('xsrf', () => {
+      it('xsrf', async () => {
+        document.cookie = 'XSRF-TOKEN=foo';
+        await api.get('/foo', {plugins: [
+          xsrf,
+          {
+            beforeFetch: (meta) => {
+              expect(meta.headers.get('X-CSRF-TOKEN')).to.equal('foo');
+            }
+          }
+        ]});
       });
     })
   });
