@@ -12,23 +12,23 @@ npm i -S @thepassle/app-tools
 import { Dialog } from '@thepassle/app-tools/dialog.js'; 
 
 const dialog = new Dialog({
-  foo: {
-    import: () => import('./components/foo.js'),
-    title: 'Foo',
-    /** Or */
-    title: ({parameters}) => `foo ${parameters.bar}`,
-    render: ({title, parameters, dialog}) => {
-      dialog.innerHTML = 'hello world';
-    }
-  }
+  foo: { 
+    opening: ({dialog, parameters}) => {dialog.container.innerHTML = 'hello world'},
+    opened: ({dialog, parameters}) => {},
+    closing: ({dialog}) => {},
+    closed: ({dialog}) => {}
+  },
+  bar: someAbstraction({title: 'foo', import: () => import('./my-component.js')}),
 });
 
 dialog.openDialog({id: 'foo'});
+await dialog.opened;
 dialog.open; // true
 /** Or */
-dialog.opened.then(() => {});
+dialog.opened.then((dialogNode) => {});
 
 dialog.close();
+await dialog.closed;
 dialog.open; // false
 /** Or */
 dialog.closed.then(() => {});

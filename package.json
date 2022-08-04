@@ -5,12 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "wtr api/api.test.js --node-resolve",
+    "test": "wtr **/*.test.js --node-resolve",
     "test:watch": "npm run test -- --watch"
   },
   "exports": {
     "./state.js": "./state.js",
     "./pwa.js": "./pwa.js",
+    "./dialog.js": "./dialog.js",
     "./api.js": "./api.js",
     "./api/plugins/abort.js": "./api/plugins/abort.js",
     "./api/plugins/cache.js": "./api/plugins/cache.js",

@@ -1,18 +1,18 @@
 /**
  * @typedef {Object} RenderParams
- * @property {string} title
  * @property {Element} dialog
  * @property {any} parameters
- */
-
-/**
- * @typedef {Object} DialogConfiguration
- * @property {() => Promise<any>} import
- * @property {string | (({parameters: any}) => string)} title
- * @property {((renderParams: RenderParams) => void) | ((renderParams: RenderParams) => Promise<void>)} render
- */
-
-/**
+ * 
+ * @typedef {HTMLDialogElement & { container: HTMLDivElement }} DialogNode
+ * 
+ * @typedef {Object} Plugin
+ * @property {((pluginParams: {dialog: DialogNode, parameters: any}) => void) | ((pluginParams: {dialog: DialogNode, parameters: any}) => Promise<void>)} [opening]
+ * @property {((pluginParams: {dialog: DialogNode, parameters: any}) => void) | ((pluginParams: {dialog: DialogNode, parameters: any}) => Promise<void>)} [opened]
+ * @property {((pluginParams: {dialog: DialogNode}) => void) | ((pluginParams: {dialog: DialogNode}) => Promise<void>)} [closing]
+ * @property {((pluginParams: {dialog: DialogNode}) => void) | ((pluginParams: {dialog: DialogNode}) => Promise<void>)} [closed]
+ * 
+ * @typedef {Plugin} DialogConfiguration
+ * 
  * @typedef {Record<string, DialogConfiguration>} Dialogs
  */
 
@@ -38,6 +38,7 @@ dialogStyles.innerHTML = `
     padding: 5px;
   }
 `;
+document.head.prepend(dialogStyles);
 
 export class Dialog extends EventTarget {
   open = false;
@@ -49,11 +50,11 @@ export class Dialog extends EventTarget {
     super();
     /** @type {Dialogs} */
     this.__dialogs = dialogs;
-    /** @type {HTMLDialogElement} */
-    this.__dialog = document.createElement('dialog');
+    /** @type {DialogNode} */
+    // 🚨 @TODO MAYBE DONT REUSE THE DIALOG, BUT CREATE IT ON OPENDIALOG AND THEN REMOVE IT ON CLOSE
+    this.__dialog = /** @type {DialogNode} */ (document.createElement('dialog'));
     this.__dialog.addEventListener('close', this.__onDialogClose);
     this.__dialog.addEventListener('mousedown', this.__onLightDismiss);
-    document.head.prepend(dialogStyles);
   }
 
   __onLightDismiss = ({target}) => {
@@ -61,52 +62,63 @@ export class Dialog extends EventTarget {
       this.close();
     }
   }
+
+  close() {
+    this.__dialog.close();
+  }
   
   __onDialogClose = async () => {
     this.dispatchEvent(new DialogStateEvent('closing'));
+    this.__currentDialog?.closing?.({dialog: this.__dialog});
     this.__dialog.innerHTML = '';
     this.__dialog.remove();
 
     await onePaint();
     this.open = false;
+    // @ts-ignore
     this.__resolveClosed();
     this.dispatchEvent(new DialogStateEvent('closed'));
+    this.__currentDialog?.closed?.({dialog: this.__dialog});
     this.opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
+    this.__currentDialog = undefined;
   }
   
+  /**
+   * @param {{
+   *  id: string,
+   *  parameters?: any,
+   * }} options
+   */
   async openDialog({id, parameters}) {
-    const dialog = this.__dialogs[id];
-    if(!dialog) throw new Error(`Couldn't find dialog configuration for id: ${id}`);
+    this.__currentDialog = this.__dialogs[id];
+    if(!this.__currentDialog) throw new Error(`Couldn't find dialog configuration for id: ${id}`);
 
-    this.dispatchEvent(new DialogStateEvent('opening'));
-    
     const container = document.createElement('div');
+    this.__dialog.container = container;
     this.__dialog.appendChild(container);
 
-    await dialog.render({
-      title: typeof dialog.title === 'function' ? dialog.title({parameters}) : dialog.title,
-      dialog: container,
-      parameters
-    });
+    this.dispatchEvent(new DialogStateEvent('opening'));
+    this.__currentDialog.opening?.({dialog: this.__dialog, parameters});
 
     document.body.appendChild(this.__dialog);
     this.__dialog.showModal();
     
     await onePaint();
-    this.open = true;
-    this.__resolveOpened();
-    this.dispatchEvent(new DialogStateEvent('opened'));
-    this.closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
-  }
 
-  close() {
-    this.__dialog.close();
+    this.open = true;
+    // @ts-ignore
+    this.__resolveOpened(this.__dialog);
+    this.dispatchEvent(new DialogStateEvent('opened'));
+    this.__currentDialog.opened?.({dialog: this.__dialog, parameters});
+
+
+    this.closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
   }
 
   /**
    * Can be used to modify the dialog
    * 
-   * @param {(dialogNode: HTMLDialogElement) => void} cb
+   * @param {(dialogNode: DialogNode) => void} cb
    * 
    * @example
    * dialog.modify(node => {node.classList.add('foo')});
@@ -115,13 +127,3 @@ export class Dialog extends EventTarget {
     cb(this.__dialog);
   }
 }
-
-export const dialog = new Dialog({
-  foo: {
-    import: () => import('./foo.js'),
-    title: 'foo',
-    render: async ({title, dialog, parameters}) => {
-      dialog.innerHTML = '<h1>foo</h1>';
-    }
-  }
-});
