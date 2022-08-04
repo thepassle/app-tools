@@ -1,8 +1,19 @@
 /**
- * @typedef {Object} DialogOptions
- * @param {() => Promise<any>} import
- * @param {string | ((Parameters) => string)} title
- * @param {() => Element} render
+ * @typedef {Object} RenderParams
+ * @property {string} title
+ * @property {Element} dialog
+ * @property {any} parameters
+ */
+
+/**
+ * @typedef {Object} DialogConfiguration
+ * @property {() => Promise<any>} import
+ * @property {string | (({parameters: any}) => string)} title
+ * @property {((renderParams: RenderParams) => void) | ((renderParams: RenderParams) => Promise<void>)} render
+ */
+
+/**
+ * @typedef {Record<string, DialogConfiguration>} Dialogs
  */
 
 class DialogStateEvent extends Event {
@@ -20,6 +31,12 @@ dialogStyles.innerHTML = `
   dialog {
     padding: 0;
   }
+
+  dialog > div {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    padding: 5px;
+  }
 `;
 
 export class Dialog extends EventTarget {
@@ -27,10 +44,11 @@ export class Dialog extends EventTarget {
   opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
   closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
 
-  /** @param {DialogOptions} dialogOptions */
-  constructor(dialogOptions) {
+  /** @param {Dialogs} dialogs */
+  constructor(dialogs) {
     super();
-    this.__dialogOptions = dialogOptions;
+    /** @type {Dialogs} */
+    this.__dialogs = dialogs;
     /** @type {HTMLDialogElement} */
     this.__dialog = document.createElement('dialog');
     this.__dialog.addEventListener('close', this.__onDialogClose);
@@ -46,32 +64,36 @@ export class Dialog extends EventTarget {
   
   __onDialogClose = async () => {
     this.dispatchEvent(new DialogStateEvent('closing'));
-    this.open = false;
+    this.__dialog.innerHTML = '';
     this.__dialog.remove();
 
     await onePaint();
+    this.open = false;
     this.__resolveClosed();
     this.dispatchEvent(new DialogStateEvent('closed'));
     this.opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
   }
   
   async openDialog({id, parameters}) {
-    const dialog = this.__dialogOptions[id];
+    const dialog = this.__dialogs[id];
     if(!dialog) throw new Error(`Couldn't find dialog configuration for id: ${id}`);
 
     this.dispatchEvent(new DialogStateEvent('opening'));
     
-    // dialog.render({parameters});
-    const dialogContainer = document.createElement('dialog-container');
-    dialogContainer.dialogTitle = typeof dialog.title === 'function' ? dialog.title({parameters}) : dialog.title;
-    this.__dialog.innerHTML = '';
-    this.__dialog.appendChild(dialogContainer);
+    const container = document.createElement('div');
+    this.__dialog.appendChild(container);
+
+    await dialog.render({
+      title: typeof dialog.title === 'function' ? dialog.title({parameters}) : dialog.title,
+      dialog: container,
+      parameters
+    });
 
     document.body.appendChild(this.__dialog);
     this.__dialog.showModal();
-    this.open = true;
-
+    
     await onePaint();
+    this.open = true;
     this.__resolveOpened();
     this.dispatchEvent(new DialogStateEvent('opened'));
     this.closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
@@ -94,33 +116,12 @@ export class Dialog extends EventTarget {
   }
 }
 
-class DialogContainer extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({mode: 'open'});
-  }
-
-  connectedCallback() {
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          padding: 5px;
-        }
-      </style>
-      <h1>${this.dialogTitle}</h1>
-      <button>close</button>
-      <slot></slot>
-    `;
-  }
-}
-
-customElements.define('dialog-container', DialogContainer);
-
 export const dialog = new Dialog({
   foo: {
     import: () => import('./foo.js'),
     title: 'foo',
-    render: ({parameters}) => {}
+    render: async ({title, dialog, parameters}) => {
+      dialog.innerHTML = '<h1>foo</h1>';
+    }
   }
 });

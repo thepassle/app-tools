@@ -17,15 +17,21 @@ const dialog = new Dialog({
     title: 'Foo',
     /** Or */
     title: ({parameters}) => `foo ${parameters.bar}`,
-    render: ({parameters}) => {}
+    render: ({title, parameters, dialog}) => {
+      dialog.innerHTML = 'hello world';
+    }
   }
 });
 
 dialog.openDialog({id: 'foo'});
 dialog.open; // true
+/** Or */
+dialog.opened.then(() => {});
 
 dialog.close();
 dialog.open; // false
+/** Or */
+dialog.closed.then(() => {});
 
 dialog.addEventListener('opening', () => {});
 dialog.addEventListener('opened', () => {});
