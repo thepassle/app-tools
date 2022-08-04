@@ -1,0 +1,1 @@
+export { Dialog, dialog } from './dialog/index.js';
