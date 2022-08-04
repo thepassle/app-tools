@@ -12,7 +12,7 @@ describe('Dialog', () => {
   });
 
   afterEach(() => {
-    dialog.close();
+    if(dialog.open) dialog.close();
   });
 
   it('opens', async () => {
@@ -53,7 +53,7 @@ describe('Dialog', () => {
     expect(cbs.opened.called).to.be.false;
     expect(cbs.closing.called).to.be.false;
     expect(cbs.closed.called).to.be.false;
-    
+
     await dialog.opened;
 
     expect(cbs.opening.called).to.be.true;

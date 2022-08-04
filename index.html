@@ -11,13 +11,16 @@
     <button style="width: 600px; height:200px" id="btn2">error</button>
     <button style="width: 600px; height:200px" id="dialogbtn">dialog</button>
     <script type="module">
-      import { dialog } from './dialog.js';
+      import { Dialog } from './dialog.js';
       import { pwa } from './pwa.js';
       import { Api } from './api.js';
       import { abort } from './api/plugins/abort.js';
       import { logger } from './api/plugins/logger.js';
       import { xsrf } from './api/plugins/xsrf.js';
 
+      const dialog = new Dialog({
+        foo: { opening: ({dialog}) => dialog.container.innerHTML = 'hello'}
+      });
       window.d = dialog;
 
       const api = new Api({plugins: [

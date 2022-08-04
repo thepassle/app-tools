@@ -50,11 +50,18 @@ export class Dialog extends EventTarget {
     super();
     /** @type {Dialogs} */
     this.__dialogs = dialogs;
-    /** @type {DialogNode} */
-    // 🚨 @TODO MAYBE DONT REUSE THE DIALOG, BUT CREATE IT ON OPENDIALOG AND THEN REMOVE IT ON CLOSE
-    this.__dialog = /** @type {DialogNode} */ (document.createElement('dialog'));
-    this.__dialog.addEventListener('close', this.__onDialogClose);
-    this.__dialog.addEventListener('mousedown', this.__onLightDismiss);
+  }
+
+  __cleanupDialogNode() {
+    this.__dialog?.remove();
+    this.__dialog = undefined;
+  }
+
+  __initDialogNode() {
+    const dialogNode = /** @type {DialogNode} */ (document.createElement('dialog'));
+    dialogNode.addEventListener('close', this.__onDialogClose);
+    dialogNode.addEventListener('mousedown', this.__onLightDismiss);
+    return dialogNode;
   }
 
   __onLightDismiss = ({target}) => {
@@ -64,20 +71,22 @@ export class Dialog extends EventTarget {
   }
 
   close() {
-    this.__dialog.close();
+    this.__dialog?.close();
   }
   
   __onDialogClose = async () => {
     this.dispatchEvent(new DialogStateEvent('closing'));
+    // @ts-ignore
     this.__currentDialog?.closing?.({dialog: this.__dialog});
-    this.__dialog.innerHTML = '';
-    this.__dialog.remove();
-
+    
+    this.__cleanupDialogNode();
+    
     await onePaint();
     this.open = false;
     // @ts-ignore
     this.__resolveClosed();
     this.dispatchEvent(new DialogStateEvent('closed'));
+    // @ts-ignore
     this.__currentDialog?.closed?.({dialog: this.__dialog});
     this.opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
     this.__currentDialog = undefined;
@@ -92,6 +101,8 @@ export class Dialog extends EventTarget {
   async openDialog({id, parameters}) {
     this.__currentDialog = this.__dialogs[id];
     if(!this.__currentDialog) throw new Error(`Couldn't find dialog configuration for id: ${id}`);
+    
+    this.__dialog = this.__initDialogNode();
 
     const container = document.createElement('div');
     this.__dialog.container = container;
@@ -118,7 +129,7 @@ export class Dialog extends EventTarget {
   /**
    * Can be used to modify the dialog
    * 
-   * @param {(dialogNode: DialogNode) => void} cb
+   * @param {(dialogNode: DialogNode | undefined) => void} cb
    * 
    * @example
    * dialog.modify(node => {node.classList.add('foo')});
