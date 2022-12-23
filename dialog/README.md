@@ -21,7 +21,7 @@ const dialog = new Dialog({
   bar: someAbstraction({title: 'foo', import: () => import('./my-component.js')}),
 });
 
-dialog.openDialog({id: 'foo'});
+dialog.open({id: 'foo'});
 await dialog.opened;
 dialog.open; // true
 /** Or */
@@ -40,5 +40,13 @@ dialog.addEventListener('closed', () => {});
 
 dialog.modify((dialogNode) => {
   dialogNode.classList.add('foo');
+});
+
+/** You can also pass parameters to the dialog renderer */
+dialog.open({
+  id: 'foo', 
+  parameters: {
+    foo: 'bar'
+  }
 });
 ```

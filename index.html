@@ -4,23 +4,33 @@
       *:focus {
         border: solid 4px blue;
       }
+
+      dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
     </style>
   </head>
   <body>
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     <button style="width: 600px; height:200px" id="btn">click</button>
     <button style="width: 600px; height:200px" id="btn2">error</button>
-    <button style="width: 600px; height:200px" id="dialogbtn">dialog</button>
+    <button style="width: 600px; height:200px" id="contextMenu">contextMenu</button>
+    <button style="width: 600px; height:200px" id="dialogbtn1">dialog foo</button>
+    <button style="width: 600px; height:200px" id="dialogbtn2">dialog bar</button>
+    <button style="width: 600px; height:200px" id="">dialog bar</button>
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     <script type="module">
-      import { Dialog } from './dialog.js';
+      import { dialog } from './dialog/index.js';
       import { pwa } from './pwa.js';
       import { Api } from './api.js';
       import { abort } from './api/plugins/abort.js';
       import { logger } from './api/plugins/logger.js';
       import { xsrf } from './api/plugins/xsrf.js';
+      import { render, html } from 'https://unpkg.com/lit?module';
 
-      const dialog = new Dialog({
-        foo: { opening: ({dialog}) => dialog.container.innerHTML = 'hello'}
-      });
+      // const dialog = new Dialog({
+      //   foo: { opening: ({dialog}) => dialog.container.innerHTML = 'hello'}
+      // });
       window.d = dialog;
 
       const api = new Api({plugins: [
@@ -34,9 +44,28 @@
         // }
       ]});
 
-      dialogbtn.addEventListener('click', () => {
-        dialog.openDialog({id: 'foo'});
-      })
+      window.process = {
+        env: {
+          NODE_ENV: ''
+        }
+      };
+
+      dialogbtn1.addEventListener('click', (e) => {
+        dialog.open('modal', {id: 'foo'});
+      });
+
+      dialogbtn2.addEventListener('click', (e) => {
+        dialog.open('modal', {id: 'bar'});
+      });
+
+      contextMenu.addEventListener('click', (e) => {
+        dialog.open('contextMenu', {
+          target: e.target,
+          render: () => html`<h1>hi</h1><button @click=${() => dialog.open('modal', {id: 'foo'})}>open dialog</button>`
+        });
+      });
+
+      
 
       dialog.addEventListener('opening', () => {console.log('dialog opening')});
       dialog.addEventListener('opened', () => {console.log('dialog opened')});

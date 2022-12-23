@@ -16,21 +16,21 @@ describe('Dialog', () => {
   });
 
   it('opens', async () => {
-    dialog.openDialog({id: 'foo'});
+    dialog.open({id: 'foo'});
     await dialog.opened;
-    expect(dialog.open).to.be.true;
+    expect(dialog.isOpen).to.be.true;
   });
 
   it('closes', async () => {
-    dialog.openDialog({id: 'foo'});
+    dialog.open({id: 'foo'});
     await dialog.opened;
     dialog.close();
     await dialog.closed;
-    expect(dialog.open).to.be.false;
+    expect(dialog.isOpen).to.be.false;
   });
 
   it('modify', async () => {
-    dialog.openDialog({id: 'foo'});
+    dialog.open({id: 'foo'});
 
     const d = await dialog.opened;
     dialog.modify(node => {node.classList.add('foo')});
@@ -47,7 +47,7 @@ describe('Dialog', () => {
     };
     const dialog = new Dialog({foo: cbs});
 
-    dialog.openDialog({id: 'foo'});
+    dialog.open({id: 'foo'});
     
     expect(cbs.opening.called).to.be.true;
     expect(cbs.opened.called).to.be.false;
