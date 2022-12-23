@@ -7,4 +7,5 @@ Collection of tools I regularly use to build apps. Maybe they're useful to someb
 - [`state`](/state/README.md)
 - [`api`](/api/README.md)
 - [`pwa`](/pwa/README.md)
+- [`env`](/env/README.md)
 - [`utils`](/utils/README.md)
