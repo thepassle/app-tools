@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -20,10 +20,10 @@
     "./api/plugins/logger.js": "./api/plugins/logger.js",
     "./api/plugins/xsrf.js": "./api/plugins/xsrf.js",
     "./utils.js": "./utils.js",
-    "./env/env.js": {
-      "development": "./env-dev.js",
-      "default": "./env-prod.js"
-		},
+    "./env.js": {
+      "development": "./env/env-dev.js",
+      "default": "./env/env-prod.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
