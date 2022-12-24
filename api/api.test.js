@@ -5,7 +5,7 @@ import { jsonPrefix } from './plugins/jsonPrefix.js';
 import { mock } from './plugins/mock.js';
 import { xsrf } from './plugins/xsrf.js';
 import { cache, cachePlugin } from './plugins/cache.js';
-import { debounce, debouncePlugin } from './plugins/debounce.js';
+import { debouncePlugin } from './plugins/debounce.js';
 import { abort } from './plugins/abort.js';
 
 const response = () => new Response(JSON.stringify({bar: 'bar'}), {status: 222, statusText: 'foo'});
