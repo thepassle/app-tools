@@ -7,12 +7,18 @@
       import { Api } from './api.js';
       import { abort } from './api/plugins/abort.js';
       import { logger } from './api/plugins/logger.js';
+      import { debounce } from './api/plugins/debounce.js';
       import { xsrf } from './api/plugins/xsrf.js';
+
+      // const d = debouncePlugin();
+
+      // export const cache = cachePlugin();
 
       const api = new Api({plugins: [
         // abort,
-        xsrf,
+        // xsrf,
         // logger,
+        // debounce,
         // {
           // handleError: (e) => {
             // console.log('[inline plugin]:', e);
@@ -22,7 +28,8 @@
       
       btn.addEventListener('click', async () => {
         try {
-          await api.get('https://pokeapi.co/api/v2/pokemon/1');
+          await api.get('https://pokeapi.co/api/v2/pokemon/1', { plugins: [debounce] }).then(() => { console.log(1)});
+          await api.get('https://pokeapi.co/api/v2/pokemon/2', { plugins: [debounce] }).then(() => { console.log(2)});
         } catch (e) {
           console.error('✅', e)
         }

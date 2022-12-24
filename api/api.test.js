@@ -5,6 +5,7 @@ import { jsonPrefix } from './plugins/jsonPrefix.js';
 import { mock } from './plugins/mock.js';
 import { xsrf } from './plugins/xsrf.js';
 import { cache, cachePlugin } from './plugins/cache.js';
+import { debounce, debouncePlugin } from './plugins/debounce.js';
 import { abort } from './plugins/abort.js';
 
 const response = () => new Response(JSON.stringify({bar: 'bar'}), {status: 222, statusText: 'foo'});
@@ -276,6 +277,19 @@ describe('Api', () => {
         await api.get('/foo', {plugins: [c] });
         expect(fetchStub.callCount).to.equal(2);
       }); 
+    });
+
+    describe('debounce', () => {
+      it('debounces requests', async () => {
+        const d = debouncePlugin({ timeout: 10 });
+
+        api.get('/foo', {plugins: [d]});
+        api.get('/foo', {plugins: [d]});
+
+        await sleep(30)
+  
+        expect(fetchStub.callCount).to.equal(1);
+      });
     });
 
     describe('abort', () => {

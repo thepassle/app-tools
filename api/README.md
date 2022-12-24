@@ -64,6 +64,39 @@ const cache = cachePlugin({maxAge: 1000});
 api.get(url, {plugins: [cache]});
 ```
 
+### `debounce`
+
+```js
+import { debounce, debouncePlugin } from '@thepassle/app-tools/api/plugins/debounce.js';
+
+/** Debounces the response for a default of 1000 ms */
+api.get(url, {plugins: [debounce]});
+
+/** Or */
+const debounce = debouncePlugin({maxAge: 2000});
+api.get(url, {plugins: [debounce]});
+```
+
+**Note:** The `debounce` plugin wraps the `fetchFn` in a debouncer. `await`ing the call will cause the debounce to be awaited. E.g.:
+
+```js
+api.get(url, {plugins: [debounce]}).then(() => { console.log(1) });
+api.get(url, {plugins: [debounce]}).then(() => { console.log(2) });
+
+// Output: 
+// 2
+```
+
+But awaiting it will become:
+```js
+await api.get(url, {plugins: [debounce]}).then(() => { console.log(1) });
+await api.get(url, {plugins: [debounce]}).then(() => { console.log(2) });
+
+// Output: 
+// 1
+// 2
+```
+
 ### `abort`
 
 ```js
