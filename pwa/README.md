@@ -51,6 +51,11 @@ pwa.addEventListener('update-available', () => {
   pwa.updateAvailable; // true
   pwa.update(); // Sends a `{type: 'SKIP_WAITING'}` to the waiting service worker so it can take control of the page
 });
+
+/**
+ * PWA kill switch. Unregisters service worker, deletes caches, reloads the browser
+ */
+pwa.kill();
 ```
 
 ## Catching the `update` in your service worker file

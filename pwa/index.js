@@ -59,6 +59,22 @@ class Pwa extends EventTarget {
     }
     return Promise.resolve();
   }
+
+  async kill() {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    }
+
+    const cachesList = await caches.keys();
+    await Promise.all(cachesList.map(key => caches.delete(key)));
+
+    setTimeout(() => {
+      window.location.reload();
+    });
+  }
 }
 
 const pwa = new Pwa();
