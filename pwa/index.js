@@ -1,4 +1,9 @@
-import { InstallableEvent, InstalledEvent, UpdateAvailableEvent } from './events.js';
+import { 
+  InstallableEvent, 
+  InstalledEvent, 
+  UpdateAvailableEvent 
+} from './events.js';
+import { capabilities } from './capabilities.js';
 
 let installable, installPrompt;
 
@@ -50,7 +55,7 @@ class Pwa extends EventTarget {
    * @returns {Promise<ServiceWorkerRegistration> | Promise<void>}
    */
   register(swPath, opts) {
-    if('serviceWorker' in navigator) {
+    if(capabilities.SERVICEWORKER) {
       if(opts) {
         return navigator.serviceWorker.register(swPath, opts);
       } else {
@@ -61,7 +66,7 @@ class Pwa extends EventTarget {
   }
 
   async kill() {
-    if ('serviceWorker' in navigator) {
+    if (capabilities.SERVICEWORKER) {
       const registrations = await navigator.serviceWorker.getRegistrations();
       for (let registration of registrations) {
         registration.unregister();
@@ -87,7 +92,7 @@ window.addEventListener('beforeinstallprompt', e => {
   pwa.dispatchEvent(new InstallableEvent());
 });
 
-if('serviceWorker' in navigator) {
+if(capabilities.SERVICEWORKER) {
   /** @type {ServiceWorker | null} */
   let newWorker;
 
@@ -147,7 +152,9 @@ if('serviceWorker' in navigator) {
     });
   }
 
-  handleUpdate();
+  if(capabilities.SERVICEWORKER) {
+    handleUpdate();
+  }
 }
 
 export { pwa };

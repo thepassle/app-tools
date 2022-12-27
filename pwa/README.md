@@ -66,10 +66,11 @@ import { when } from '@thepassle/app-tools/utils.js';
 
 when(capabilities.WAKELOCK, () => html`<button>Request wakelock</button>`);
 
-// capabilities.WAKELOCK
 // capabilities.BADGING
 // capabilities.NOTIFICATION
 // capabilities.SHARE
+// capabilities.SERVICEWORKER
+// capabilities.WAKELOCK
 ```
 
 ## Catching the `update` in your service worker file
