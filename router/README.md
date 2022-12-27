@@ -1,0 +1,404 @@
+# Router
+
+## Install
+
+```
+npm i -S @thepassle/app-tools
+```
+
+## Usage
+
+```js
+import { Router } from '@thepassle/app-tools/router.js';
+import { lazy } from '@thepassle/app-tools/router/plugins/lazy.js';
+import { title } from '@thepassle/app-tools/router/plugins/title.js';
+import { offline } from '@thepassle/app-tools/router/plugins/offline.js';
+import { resetFocus } from '@thepassle/app-tools/router/plugins/resetFocus.js';
+import { scrollToTop } from '@thepassle/app-tools/router/plugins/scrollToTop.js';
+import { checkServiceWorkerUpdate } from '@thepassle/app-tools/router/plugins/checkServiceWorkerUpdate.js';
+
+export const router = new Router({
+  /** Plugins to be run for every route */
+  plugins: [
+    /** Redirects to an offline page */
+    offline,
+    /** Checks for service worker updates on route navigations */
+    checkServiceWorkerUpdate,
+    scrollToTop,
+    resetFocus
+  ],
+  /** Fallback route when the user navigates to a route that doesnt exist */
+  fallback: '/404',
+  routes: [
+    {
+      path: '/',
+      title: 'home',
+      render: () => html`<product-list></product-list>`
+    },
+    {
+      path: '/cart',
+      title: 'cart',
+      plugins: [
+        lazy(() => import('./shopping-card.js'))
+      ],
+      render: () => html`<shopping-cart></shopping-cart>`
+    },
+    {
+      path: '/product/:name',
+      title: ({params}) => `Product ${params.name}`,
+      plugins: [
+        lazy(() => import('./product-page.js'))
+      ],
+      render: ({params}) => html`<product-page id="${params.name}"></product-page>`
+    },
+    {
+      path: '/admin',
+      title: 'Admin',
+      plugins: [
+        {
+          shouldNavigate: () => ({
+            condition: () => state.user.isAdmin,
+            redirect: '/'
+          })
+        }
+      ],
+      render: () => html`<admin-page></admin-page>`
+    },
+    {
+      path: '/offline',
+      title: 'Offline',
+      render: () => html`<offline-page></offline-page>`
+    },
+    {
+      path: '/404',
+      title: 'Not found',
+      render: () => html`<404-page></404-page>`
+    }
+  ]
+});
+
+router.addEventListener('route-changed', ({context}) => {
+  document.querySelector('#outlet').innerHTML = router.render();
+});
+
+router.navigate('/cart');
+
+router.context.url;
+router.context.params;
+router.context.query;
+router.context.title;
+```
+
+## Base
+
+When using a Single Page Application (SPA) router, make sure to set the `<base href="/">` element in your HTML.
+
+## Rendering
+
+The router is framework agnostic. Rendering the route is left to the consumer of the router. The application is then in charge of rendering whatever is returned from the `render` function. Here's a basic example:
+
+### Using vanilla js
+
+Route:
+```js
+{
+  path: '/',
+  title: 'Home',
+  render: (context) => 'Home route'
+}
+```
+App:
+```js
+router.addEventListener('route-changed', () => {
+  const route = router.render();
+  document.querySelector('#outlet').innerHTML = route;
+});
+```
+
+### Using lit-html
+
+Route:
+```js
+{
+  path: '/',
+  title: 'Home',
+  render: (context) => html`<my-el></my-el>`
+}
+```
+App:
+```js
+import { html, render } from 'lit';
+
+router.addEventListener('route-changed', () => {
+  render(router.render(), document.querySelector('#outlet'))
+});
+```
+
+### Using LitElement
+
+Route:
+```js
+{
+  path: '/',
+  title: 'Home',
+  render: (context) => html`<my-el></my-el>`
+}
+```
+App:
+```js
+import { LitElement } from 'lit';
+
+class MyEl extends LitElement {
+  firstUpdated() {
+    router.addEventListener('route-changed', this.requestUpdate.bind(this));
+  }
+
+  render() {
+    return router.render();
+  }
+}
+```
+
+## Composable
+
+Use plugins to customize your navigations to fit your needs. You can add plugins for all navigations, or for specific routes.
+
+```js
+const router = new Router({
+  /** These plugins will run for any navigation */
+  plugins: [],
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      /** These plugins will run for this route only */
+      plugins: [],
+      render: () => html`<my-el></my-el>`
+    }
+  ]
+})
+```
+
+### `lazy`
+
+Lazily import resources or components on route navigations
+
+```js
+import { lazy } from '@thepassle/app-tools/router/plugins/lazy.js';
+
+const router = new Router({
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      plugins: [
+        lazy(() => import('./foo.js')),
+      ],
+      render: () => html`<my-el></my-el>`
+    },
+  ]
+});
+```
+
+### `redirect`
+
+```js
+import { lazy } from '@thepassle/app-tools/router/plugins/redirect.js';
+
+const router = new Router({
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      plugins: [
+        redirect('/404'),
+      ],
+    },
+  ]
+});
+```
+
+### `checkServiceWorkerUpdate`
+
+Checks for service worker updates on route navigations
+
+```js
+import { checkServiceWorkerUpdate } from '@thepassle/app-tools/router/plugins/checkServiceWorkerUpdate.js';
+
+const router = new Router({
+  plugins: [
+    checkServiceWorkerUpdate
+  ],
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      render: () => html`<my-el></my-el>`
+    },
+  ]
+});
+```
+
+### `offline`
+
+Redirects to an offline page when the user is offline
+
+```js
+import { offline, offlinePlugin } from '@thepassle/app-tools/router/plugins/offline.js';
+
+const router = new Router({
+  plugins: [
+    /** Redirects to `/offline` by default */
+    offline
+    /** Or */
+    offlinePlugin('/my-offline-page')
+  ],
+  routes: [
+    {
+      path: '/offline',
+      title: 'Offline',
+      render: () => html`<offline-page></offline-page>`
+    },
+  ]
+});
+```
+
+### `appName`
+
+Prepends the name of your app to the title
+
+```js
+import { appName } from '@thepassle/app-tools/router/plugins/appName.js';
+
+const router = new Router({
+  plugins: [
+    appName('My App -')
+  ],
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      render: () => html`<my-el></my-el>`
+    },
+  ]
+});
+```
+
+Will result in the title for route `/foo` being:
+`My App - Foo`
+
+### `scrollToTop`
+
+Scrolls the page to the top after a navigation
+
+```js
+import { scrollToTop } from '@thepassle/app-tools/router/plugins/scrollToTop.js';
+
+const router = new Router({
+  plugins: [
+    scrollToTop
+  ],
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      render: () => html`<my-el></my-el>`
+    },
+  ]
+});
+```
+
+### `resetFocus`
+
+Resets focus to the start of the document
+
+```js
+import { resetFocus } from '@thepassle/app-tools/router/plugins/resetFocus.js';
+
+const router = new Router({
+  plugins: [
+    resetFocus
+  ],
+  routes: [
+    {
+      path: '/foo',
+      title: 'Foo',
+      render: () => html`<my-el></my-el>`
+    },
+  ]
+});
+```
+
+## Plugin API
+
+```js
+const router = new Router({
+  plugins: [
+    {
+      shouldNavigate: (context) => ({
+        condition: () => false,
+        redirect: '/'
+      }),
+      beforeNavigation: (context) => {
+
+      },
+      afterNavigation: (context) => {
+
+      }
+    }
+  ]
+});
+```
+
+All plugins have access to the `context` object for the current route. Given the following route, the context includes:
+
+```js
+{
+  path: '/users/:id',
+  title: ({params, query}) => `Hello world ${params.id} ${query.foo}`,
+}
+```
+
+`www.my-website.com/users/123?foo=bar`
+
+```js
+context.params; // { id: 123 }
+context.query; // { foo: 'bar' }
+context.title; // "Hello world 123 bar"
+context.url; // URL instance of "www.my-website.com/users/123?foo=bar"
+```
+
+### `shouldNavigate`
+
+Can be used to protect routes based on a condition function. Should return an object containing a `condition` function, and a `redirect`. When the `condition` returns `false`, it will redirect to the path provided by `redirect`.
+
+```js
+const myPlugin = {
+  shouldNavigate: (context) => ({
+    /** A condition function to determine whether or not the navigation should take place */
+    condition: () => state.user.isAdmin,
+    /** Where to send the user in case the condition is false */
+    redirect: '/'
+  }),
+}
+```
+
+### `beforeNavigation`
+
+Runs before the navigation takes place
+
+```js
+const myPlugin = {
+  beforeNavigation: (context) => {}
+}
+```
+
+### `afterNavigation`
+
+Runs after the navigation takes place
+
+```js
+const myPlugin = {
+  afterNavigation: (context) => {}
+}
+```

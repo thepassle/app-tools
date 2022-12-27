@@ -5,6 +5,7 @@ Collection of tools I regularly use to build apps. Maybe they're useful to someb
 ## Packages
 
 - [`state`](/state/README.md)
+- [`router`](/router/README.md)
 - [`api`](/api/README.md)
 - [`pwa`](/pwa/README.md)
 - [`env`](/env/README.md)
