@@ -69,6 +69,7 @@ when(capabilities.WAKELOCK, () => html`<button>Request wakelock</button>`);
 // capabilities.WAKELOCK
 // capabilities.BADGING
 // capabilities.NOTIFICATION
+// capabilities.SHARE
 ```
 
 ## Catching the `update` in your service worker file
