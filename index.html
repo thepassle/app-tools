@@ -52,7 +52,6 @@
       router.addEventListener('route-changed', ({context}) => {
         const route = router.render();
         document.querySelector('main').innerHTML = route;
-        console.log('Router: ', router, context);
       });
     </script>
     <script type="module">

@@ -1,5 +1,9 @@
+import { createLogger } from '../utils/log.js';
+const log = createLogger('api');
+
 function handleStatus(response) {
   if (!response.ok) {
+    log('Response not ok', response.statusText);
     throw new Error(response.statusText);
   }
   return response;
@@ -105,6 +109,7 @@ export class Api {
       }
     }
 
+    log('Fetching', { responseType, headers, fetchFn, baseURL, url, method, opts, data });
     return fetchFn(url, {
       method,
       headers,
@@ -135,11 +140,12 @@ export class Api {
       for(const { transform } of plugins) {
         data = await transform?.(data) ?? data;
       }
-      
+      log('Fetch successful', data);
       return data;
     })
     /** [PLUGINS - HANDLEERROR] */
     .catch(async e => {
+      log('Fetch failed', e);
       const shouldThrow = (await Promise.all(plugins.map(({handleError}) => handleError?.(e) ?? false))).some(_ => !!_);
       if(shouldThrow) throw e;
     });
