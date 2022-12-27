@@ -58,6 +58,19 @@ pwa.addEventListener('update-available', () => {
 pwa.kill();
 ```
 
+## Capabilities
+
+```js
+import { capabilities } from '@thepassle/app-tools/pwa.js';
+import { when } from '@thepassle/app-tools/utils.js';
+
+when(capabilities.WAKELOCK, () => html`<button>Request wakelock</button>`);
+
+// capabilities.WAKELOCK
+// capabilities.BADGING
+// capabilities.NOTIFICATION
+```
+
 ## Catching the `update` in your service worker file
 
 The `pwa.update()` method will `postMessage({type: 'SKIP_WAITING'})` to the currently `'waiting'` service worker. This is aligned with Workbox's defaults. However, if you are not using Workbox, make sure to add the following code to your service worker:
