@@ -68,7 +68,9 @@ export class Router extends EventTarget {
       return /** @type {Route} */ (r);
     });
 
-    this.navigate(new URL(window.location.href));
+    queueMicrotask(() => {
+      this.navigate(new URL(window.location.href));
+    });
     window.addEventListener('popstate', this._onPopState);
     window.addEventListener('click', this._onAnchorClick);
   }
@@ -162,7 +164,6 @@ export class Router extends EventTarget {
     }
 
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-    
     const plugins = [
       ...(this.config?.plugins ?? []), 
       ...(this.route?.plugins ?? []), 
