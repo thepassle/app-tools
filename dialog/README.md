@@ -18,7 +18,10 @@ const dialog = new Dialog({
     closing: ({dialog}) => {},
     closed: ({dialog}) => {}
   },
-  bar: someAbstraction({title: 'foo', import: () => import('./my-component.js')}),
+  bar: someAbstraction({
+    title: 'foo', 
+    import: () => import('./my-component.js')
+  }),
 });
 
 dialog.open({id: 'foo'});

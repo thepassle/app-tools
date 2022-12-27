@@ -249,7 +249,7 @@ function modal(dialogs) {
 
 // 🚨 @TODO TAKE A LOOK AT THIS
 // https://codepen.io/Westbrook/pen/gOejYVB
-
+// https://codepen.io/equinusocio/pen/rNvZQeY
 
 
 export {dialog};
