@@ -59,7 +59,6 @@ export class Router extends EventTarget {
         ...route,
         urlPattern: new URLPattern({
           pathname: route.path,
-          /** @TODO figure out base url */
           baseURL: window.location.href,
           search: '*',
           hash: '*',

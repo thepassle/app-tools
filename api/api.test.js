@@ -190,7 +190,6 @@ describe('Api', () => {
     });
   });
 
-  // @TODO test for abort plugin
   describe('plugins', () => {
     describe('transform', () => {
       it('transforms data', async () => {
