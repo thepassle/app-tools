@@ -1,5 +1,7 @@
 # Router
 
+A simple, modular Single Page Application router. 
+
 ## Install
 
 ```
@@ -87,6 +89,20 @@ router.context.url;
 router.context.params;
 router.context.query;
 router.context.title;
+```
+
+## Polyfill
+
+The router makes use of the `URLPattern` api, which you may need to polyfill in your application. You can use [`urlpattern-polyfill`](https://www.npmjs.com/package/urlpattern-polyfill) for this.
+
+If you use [`@web/rollup-plugin-polyfills-loader`](https://www.npmjs.com/package/@web/rollup-plugin-polyfills-loader) in your rollup build you can use the `URLPattern` config option:
+
+```js
+polyfillsLoader({
+  polyfills: {
+    URLPattern: true,
+  },
+})
 ```
 
 ## Base
