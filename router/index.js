@@ -1,3 +1,6 @@
+import { createLogger } from '../utils/log.js';
+const log = createLogger('router');
+
 class RouteEvent extends Event {
   /**
    * @param {Context} context 
@@ -66,6 +69,7 @@ export class Router extends EventTarget {
       });
       return /** @type {Route} */ (r);
     });
+    log('Initialized routes', this.routes);
 
     queueMicrotask(() => {
       this.navigate(new URL(window.location.href));
@@ -91,6 +95,7 @@ export class Router extends EventTarget {
 
   render() {
     const { params, query, url, title } = this.context;
+    log('Rendering route', this.context);
     return this.route?.render({
       params,
       query,
@@ -119,6 +124,7 @@ export class Router extends EventTarget {
         return route;
       }
     }
+    log('No route matched', url);
     return null;
   }
   
@@ -164,6 +170,7 @@ export class Router extends EventTarget {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
     }
+    log('Navigating', url);
 
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
     const plugins = [
@@ -177,6 +184,7 @@ export class Router extends EventTarget {
         const condition = await result.condition();
         if (!condition) {
           url = new URL(result.redirect, this.baseUrl);
+          log('Redirecting', url);
           this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
         }
       }

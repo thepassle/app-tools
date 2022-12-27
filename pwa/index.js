@@ -4,6 +4,8 @@ import {
   UpdateAvailableEvent 
 } from './events.js';
 import { capabilities } from './capabilities.js';
+import { createLogger } from '../utils/log.js';
+const log = createLogger('pwa');
 
 let installable, installPrompt;
 
@@ -31,14 +33,17 @@ class Pwa extends EventTarget {
 
   /** Triggers the install prompt, when it's available. You can call this method when the `'installable'` event has fired. */
   triggerPrompt = async () => {
+    log('Triggering prompt')
     if(this.installPrompt) {
       this.installPrompt.prompt();
       const { outcome } = await this.installPrompt?.userChoice;
 
       if (outcome === 'accepted') {
+        log('Prompt accepted')
         this.dispatchEvent(new InstalledEvent(true));
         this.installPrompt = undefined;
       } else {
+        log('Prompt denied')
         this.dispatchEvent(new InstalledEvent(false));
       }
     }
@@ -46,6 +51,7 @@ class Pwa extends EventTarget {
 
   /** Update */
   update = () => {
+    log('Skip waiting')
     this.__waitingServiceWorker?.postMessage({ type: 'SKIP_WAITING' });
   }
 
@@ -71,10 +77,12 @@ class Pwa extends EventTarget {
       for (let registration of registrations) {
         registration.unregister();
       }
+      log('Killed service worker');
     }
 
     const cachesList = await caches.keys();
     await Promise.all(cachesList.map(key => caches.delete(key)));
+    log('Cleared cache');
 
     setTimeout(() => {
       window.location.reload();
@@ -85,6 +93,7 @@ class Pwa extends EventTarget {
 const pwa = new Pwa();
 
 window.addEventListener('beforeinstallprompt', e => {
+  log('Before install prompt fired')
   installable = true;
   installPrompt = /** @type {BeforeInstallPromptEvent} */ (e);
   pwa.installable = installable;
@@ -103,6 +112,7 @@ if(capabilities.SERVICEWORKER) {
        * service worker, it means there is an update ready
        */
       if (reg.waiting && navigator.serviceWorker.controller) {
+        log('New service worker available')
         pwa.updateAvailable = true;
         pwa.__waitingServiceWorker = reg.waiting;
         pwa.dispatchEvent(new UpdateAvailableEvent());
@@ -116,6 +126,7 @@ if(capabilities.SERVICEWORKER) {
         if(newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker?.state === 'installed' && navigator.serviceWorker.controller) {
+              log('New service worker available')
               pwa.updateAvailable = true;
               pwa.__waitingServiceWorker = newWorker;
               pwa.dispatchEvent(new UpdateAvailableEvent());
@@ -139,6 +150,7 @@ if(capabilities.SERVICEWORKER) {
     const oldSw = (await navigator.serviceWorker.getRegistration())?.active?.state;
 
     navigator.serviceWorker.addEventListener('controllerchange', async () => {
+      log('Controller change');
       if (refreshing) return;
 
       // when the controllerchange event has fired, we get the new service worker
@@ -146,6 +158,7 @@ if(capabilities.SERVICEWORKER) {
 
       // if there was already an old activated service worker, and a new activating service worker, do the reload
       if(oldSw === 'activated' && newSw === 'activating') {
+        log('Reloading');
         refreshing = true;
         window.location.reload();
       }
