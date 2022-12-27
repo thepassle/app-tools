@@ -109,7 +109,7 @@ export class Api {
       }
     }
 
-    log('Fetching', { responseType, headers, fetchFn, baseURL, url, method, opts, data });
+    log('Fetching', { responseType, headers: Object.fromEntries(headers), fetchFn, baseURL, url, method, opts, data });
     return fetchFn(url, {
       method,
       headers,
