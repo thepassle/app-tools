@@ -171,8 +171,8 @@ export class Router extends EventTarget {
       url = new URL(url, this.baseUrl);
     }    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-    log('Navigating', { url, context: this.context });
-    
+    log('Navigating', this.context);
+
     const plugins = [
       ...(this.config?.plugins ?? []), 
       ...(this.route?.plugins ?? []), 
@@ -184,7 +184,7 @@ export class Router extends EventTarget {
         const condition = await result.condition();
         if (!condition) {
           url = new URL(result.redirect, this.baseUrl);
-          log('Redirecting', { url, context: this.context });
+          log('Redirecting', this.context);
           this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
         }
       }
