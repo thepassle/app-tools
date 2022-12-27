@@ -91,7 +91,53 @@ router.context.title;
 
 ## Base
 
-When using a Single Page Application (SPA) router, make sure to set the `<base href="/">` element in your HTML.
+When using a Single Page Application (SPA) router, make sure to set the `<base href="/">` element in your HTML. Also make sure that your dev server is configured for SPA Navigations. When using `@web/dev-server`, you can use the `--app-index` configuration options.
+
+E.g.: `web-dev-server --app-index index.html`, or `web-dev-server --app-index foo/index.html`
+
+When using a different base, for example if your app is running on `my-app.com/foo/`, make sure to adjust your routing configuration:
+
+```html
+<html>
+  <head>
+    <base href="/foo/">
+  </head>
+  <body>
+    <a href="/foo/">home</a>
+    <a href="foo">foo</a>
+    <a href="bar/123">bar</a>
+    <main></main>
+  </body>
+  <script type="module">
+    import { Router } from 'https://unpkg.com/@thepassle/app-tools/router.js';
+        
+    const router = new Router({
+      routes: [
+        {
+          path: '/foo/',
+          title: 'Hello',
+          render: () => 'home'
+        },
+        {
+          path: 'foo',
+          title: 'Foo',
+          render: () => 'foo'
+        },
+        {
+          path: 'bar/:id',
+          title: ({params}) => `Bar ${params.id}`,
+          render: ({params}) => `bar ${params.id}`
+        },
+      ]
+    });
+
+    router.addEventListener('route-changed', ({context}) => {
+      const route = router.render();
+      document.querySelector('main').innerHTML = route;
+    });
+  </script>
+</html>
+```
 
 ## Rendering
 

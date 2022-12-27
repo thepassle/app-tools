@@ -8,39 +8,31 @@
       <li><a href="foo">foo</a></li>
       <li><a href="bar/123">bar</a></li>
     </ul>
-    <main>
-
-    </main>
+    <main id="outlet"></main>
     
     <script type="module">
       import { Router } from '../router.js';
       
       const router = new Router({
-        plugins: [
-          {
-
-          }
-
-        ],
-        fallback: '/404',
+        fallback: '404',
         routes: [
           {
-            path: '/',
+            path: '/router/',
             title: 'Hello',
             render: () => 'home'
           },
           {
-            path: '/foo',
+            path: 'foo',
             title: 'Foo',
             render: () => 'foo'
           },
           {
-            path: '/bar/:id',
+            path: 'bar/:id',
             title: ({params}) => `Bar ${params.id}`,
             render: ({params}) => `bar ${params.id}`
           },
           {
-            path: '/404',
+            path: '404',
             title: 'Not found',
             render: () => 'not found'
           },
