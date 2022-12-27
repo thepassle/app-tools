@@ -11,14 +11,49 @@ npm i -S @thepassle/app-tools
 ### `when`
 
 ```js
-html`${when(true, () => html`only truthy result`)}`;
-html`${when(true, () => html`truthy result`, () => `falsy result`)}`;
+import { when } from '@thepassle/app-tools/utils.js';
+
+when(true, () => html`only truthy result`);
+when(true, 
+  () => html`truthy result`, 
+  () => html`falsy result`
+);
+```
+
+### `waitUntil`
+
+```js
+import { waitUntil } from '@thepassle/app-tools/utils.js';
+
+await waitUntil(() => true, {
+  timeout: 1000,
+  message: 'waitUntil timed out', 
+  interval: 50
+});
+```
+
+### `debounce`
+
+```js
+import { debounce } from '@thepassle/app-tools/utils.js';
+
+function foo() {
+  console.log(1);
+}
+
+const debouncedFoo = debounce(foo);
+
+debouncedFoo();
+debouncedFoo();
+debouncedFoo();
+
+// console.log only called once
 ```
 
 ### `Service`
 
 ```js
-import { createService } from '@thepassle/app-tools';
+import { createService } from '@thepassle/app-tools/utils.js';
 import { html, nothing } from 'lit';
 
 const Service = createService({

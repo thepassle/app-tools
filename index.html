@@ -1,17 +1,14 @@
 <html>
   <head>
-    <style>
-      *:focus {
-        border: solid 4px blue;
-      }
-
-      dialog::backdrop {
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-    </style>
+    <base href="/">
   </head>
   <body>
     <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <ul>
+      <li><a href="/">home</a></li>
+      <li><a href="/foo">foo</a></li>
+      <li><a href="/bar/123">bar</a></li>
+    </ul>
     <button style="width: 600px; height:200px" id="btn">click</button>
     <button style="width: 600px; height:200px" id="btn2">error</button>
     <button style="width: 600px; height:200px" id="contextMenu">contextMenu</button>
@@ -19,12 +16,58 @@
     <button style="width: 600px; height:200px" id="dialogbtn2">dialog bar</button>
     <button style="width: 600px; height:200px" id="">dialog bar</button>
     <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <main></main>
+    <script type="module">
+      import { Router } from './router.js';
+      
+      const router = new Router({
+        plugins: [          
+          {
+            beforeNavigation: (context) => {
+              context.title = `foo ${context.title}`
+            }
+          },
+        ],
+        fallback: '/404',
+        routes: [
+          {
+            path: '/',
+            title: 'Hello',
+            render: () => 'home'
+          },
+          {
+            path: '/foo',
+            title: 'Foo',
+            plugins: [
+            ],
+            render: () => 'foo'
+          },
+          {
+            path: '/bar/:id',
+            title: ({params}) => `Bar ${params.id}`,
+            render: ({params}) => `bar ${params.id}`
+          },
+          {
+            path: '/404',
+            title: 'Not found',
+            render: () => 'not found'
+          },
+        ]
+      });
+
+      router.addEventListener('route-changed', ({context}) => {
+        const route = router.render();
+        document.querySelector('main').innerHTML = route;
+        console.log('Router: ', router, context);
+      });
+    </script>
     <script type="module">
       import { dialog } from './dialog/index.js';
       import { pwa } from './pwa.js';
       import { Api } from './api.js';
       import { abort } from './api/plugins/abort.js';
       import { logger } from './api/plugins/logger.js';
+      import { debounce } from './api/plugins/debounce.js';
       import { xsrf } from './api/plugins/xsrf.js';
       import { render, html } from 'https://unpkg.com/lit?module';
 
@@ -33,10 +76,15 @@
       // });
       window.d = dialog;
 
+      // const d = debouncePlugin();
+
+      // export const cache = cachePlugin();
+
       const api = new Api({plugins: [
         // abort,
-        xsrf,
+        // xsrf,
         // logger,
+        // debounce,
         // {
           // handleError: (e) => {
             // console.log('[inline plugin]:', e);
@@ -74,7 +122,8 @@
       
       btn.addEventListener('click', async () => {
         try {
-          await api.get('https://pokeapi.co/api/v2/pokemon/1');
+          api.get('https://pokeapi.co/api/v2/pokemon/1', { plugins: [debounce] }).then(() => { console.log(1)});
+          api.get('https://pokeapi.co/api/v2/pokemon/2', { plugins: [debounce] }).then(() => { console.log(2)});
         } catch (e) {
           console.error('✅', e)
         }

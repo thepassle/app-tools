@@ -1,4 +1,9 @@
-import { InstallableEvent, InstalledEvent, UpdateAvailableEvent } from './events.js';
+import { 
+  InstallableEvent, 
+  InstalledEvent, 
+  UpdateAvailableEvent 
+} from './events.js';
+import { capabilities } from './capabilities.js';
 
 let installable, installPrompt;
 
@@ -21,6 +26,8 @@ class Pwa extends EventTarget {
   installPrompt;
   /** @type {ServiceWorker | undefined} */
   __waitingServiceWorker;
+  /** @type {boolean} */
+  isInstalled = window.matchMedia('(display-mode: standalone)').matches;
 
   /** Triggers the install prompt, when it's available. You can call this method when the `'installable'` event has fired. */
   triggerPrompt = async () => {
@@ -41,6 +48,38 @@ class Pwa extends EventTarget {
   update = () => {
     this.__waitingServiceWorker?.postMessage({ type: 'SKIP_WAITING' });
   }
+
+  /**
+   * @param {string} swPath 
+   * @param {RegistrationOptions} opts 
+   * @returns {Promise<ServiceWorkerRegistration> | Promise<void>}
+   */
+  register(swPath, opts) {
+    if(capabilities.SERVICEWORKER) {
+      if(opts) {
+        return navigator.serviceWorker.register(swPath, opts);
+      } else {
+        return navigator.serviceWorker.register(swPath);
+      }
+    }
+    return Promise.resolve();
+  }
+
+  async kill() {
+    if (capabilities.SERVICEWORKER) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    }
+
+    const cachesList = await caches.keys();
+    await Promise.all(cachesList.map(key => caches.delete(key)));
+
+    setTimeout(() => {
+      window.location.reload();
+    });
+  }
 }
 
 const pwa = new Pwa();
@@ -53,7 +92,7 @@ window.addEventListener('beforeinstallprompt', e => {
   pwa.dispatchEvent(new InstallableEvent());
 });
 
-if('serviceWorker' in navigator) {
+if(capabilities.SERVICEWORKER) {
   /** @type {ServiceWorker | null} */
   let newWorker;
 
@@ -113,7 +152,9 @@ if('serviceWorker' in navigator) {
     });
   }
 
-  handleUpdate();
+  if(capabilities.SERVICEWORKER) {
+    handleUpdate();
+  }
 }
 
 export { pwa };

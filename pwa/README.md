@@ -11,11 +11,21 @@ npm i -S @thepassle/app-tools
 Sets up global listeners for `'beforeinstallprompt'`, `'controllerchange'` as a side effect and correctly handles reloading when `'controllerchange'` has fired; it only reloads when a new service worker has activated, and there was a previous worker.
 
 ```js
+import { PROD } from '@thepassle/app-tools/env.js';
 import { pwa } from '@thepassle/app-tools/pwa.js'; 
 
 pwa.updateAvailable; // false
 pwa.installable; // false
 pwa.installPrompt; // undefined
+/** Whether or not the PWA is running in standalone mode, and thus is installed as PWA */
+pwa.isInstalled; // false
+
+if (PROD) {
+  pwa.register('./sw.js', { scope: './' })
+    .catch(() => { 
+      console.log('Failed to register SW.') 
+    });
+}
 
 /** Fires an event when the PWA is considered installable by the browser */
 pwa.addEventListener('installable', () => {
@@ -25,7 +35,7 @@ pwa.addEventListener('installable', () => {
 });
 
 pwa.addEventListener('installed', ({installed}) => {
-  if(installed) {
+  if (installed) {
     /** The user accepted the install prompt, the PWA is successfully installed */
   } else {
     /** The user denied the prompt */
@@ -41,6 +51,26 @@ pwa.addEventListener('update-available', () => {
   pwa.updateAvailable; // true
   pwa.update(); // Sends a `{type: 'SKIP_WAITING'}` to the waiting service worker so it can take control of the page
 });
+
+/**
+ * PWA kill switch. Unregisters service worker, deletes caches, reloads the browser
+ */
+pwa.kill();
+```
+
+## Capabilities
+
+```js
+import { capabilities } from '@thepassle/app-tools/pwa.js';
+import { when } from '@thepassle/app-tools/utils.js';
+
+when(capabilities.WAKELOCK, () => html`<button>Request wakelock</button>`);
+
+// capabilities.BADGING
+// capabilities.NOTIFICATION
+// capabilities.SHARE
+// capabilities.SERVICEWORKER
+// capabilities.WAKELOCK
 ```
 
 ## Catching the `update` in your service worker file
