@@ -79,7 +79,10 @@ export class Router extends EventTarget {
   }
 
   get fallback() {
-    return new URL(this.config?.fallback || '/' , this.baseUrl)
+    return new URL(
+      this.config?.fallback || this.baseUrl.href.substring(window.location.origin.length), 
+      this.baseUrl
+    )
   }
 
   get baseUrl() {
