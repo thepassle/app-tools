@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <base href="/router/">
+  </head>
+  <body>
+    <ul>
+      <li><a href="/router/">home</a></li>
+      <li><a href="foo">foo</a></li>
+      <li><a href="bar/123">bar</a></li>
+    </ul>
+    <main>
+
+    </main>
+    
+    <script type="module">
+      import { Router } from '../router.js';
+      
+      const router = new Router({
+        plugins: [
+          {
+
+          }
+
+        ],
+        fallback: '/404',
+        routes: [
+          {
+            path: '/',
+            title: 'Hello',
+            render: () => 'home'
+          },
+          {
+            path: '/foo',
+            title: 'Foo',
+            render: () => 'foo'
+          },
+          {
+            path: '/bar/:id',
+            title: ({params}) => `Bar ${params.id}`,
+            render: ({params}) => `bar ${params.id}`
+          },
+          {
+            path: '/404',
+            title: 'Not found',
+            render: () => 'not found'
+          },
+        ]
+      });
+
+      router.addEventListener('route-changed', ({context}) => {
+        const route = router.render();
+        document.querySelector('main').innerHTML = route;
+        console.log('Router: ', router, context);
+      });
+    </script>
+  </body>
+</html>
