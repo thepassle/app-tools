@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -57,7 +57,9 @@
     "./state.js",
     "./state/index.js",
     "./utils.js",
+    "./utils/async.js",
     "./utils/index.js",
+    "./utils/Service.js",
     "./env/env-dev.js",
     "./env/env-prod.js"
   ],
