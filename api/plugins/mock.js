@@ -19,6 +19,7 @@ function setAbortableTimeout(f, ms, {signal}) {
  */
 export function mock(response) {
   return {
+    name: 'mock',
     beforeFetch: (meta) => {
       meta.fetchFn = function mock(_, opts) {
         return new Promise(r => setAbortableTimeout(

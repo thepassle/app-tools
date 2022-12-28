@@ -31,33 +31,27 @@
     </style>
   </head>
   <body>
+    
+    <button style="width: 600px; height:200px" id="btn">api success</button>
+    <button style="width: 600px; height:200px" id="btn2">api error</button>
+    <button style="width: 600px; height:200px" id="dialogbtn1">dialog foo</button>
     <ul>
       <li><a href="/">home</a></li>
       <li><a href="/foo">foo</a></li>
       <li><a href="/bar/123">bar</a></li>
     </ul>
-  
-    <button style="width: 600px; height:200px" id="btn">api success</button>
-    <button style="width: 600px; height:200px" id="btn2">api error</button>
-    <button style="width: 600px; height:200px" id="dialogbtn1">dialog foo</button>
     <main></main>
     <script type="module">
 
     </script>
     <script type="module">
-      import { dialog } from './dialog/dialog2.js';
+      import { dialog } from './dialog/index.js';
       import { Api } from './api.js';
       import { render, html } from 'https://unpkg.com/lit?module';
       import { Router } from './router.js';
       
       const router = new Router({
-        plugins: [          
-          {
-            beforeNavigation: (context) => {
-              context.title = `foo ${context.title}`
-            }
-          },
-        ],
+        plugins: [],
         fallback: '/404',
         routes: [
           {
@@ -102,19 +96,16 @@
         dialog.open({id: 'foo', parameters: {foo: 'bar'}});
       });
 
-
-      
-
-      dialog.addEventListener('opening', () => {console.log('dialog opening')});
-      dialog.addEventListener('opened', () => {console.log('dialog opened')});
-      dialog.addEventListener('closing', () => {console.log('dialog closing')});
-      dialog.addEventListener('closed', () => {console.log('dialog closed')});
+      // dialog.addEventListener('opening', () => {console.log('dialog opening')});
+      // dialog.addEventListener('opened', () => {console.log('dialog opened')});
+      // dialog.addEventListener('closing', () => {console.log('dialog closing')});
+      // dialog.addEventListener('closed', () => {console.log('dialog closed')});
       
       btn.addEventListener('click', async () => {
         try {
           api.get('https://pokeapi.co/api/v2/pokemon/1', { plugins: [] }).then(() => { console.log(1)});
         } catch (e) {
-          console.error('✅', e)
+          console.error(e);
         }
       })
 
@@ -122,7 +113,7 @@
         try {
           await api.get('https://poasdfasdfkeapi.co/api/v2/pokemon/1');
         } catch(e) {
-          console.log('11111 ✅', e);
+          console.log(e);
         }
       })
     </script>

@@ -1,3 +1,6 @@
+import { createLogger } from '../utils/log.js';
+const log = createLogger('router');
+
 class RouteEvent extends Event {
   /**
    * @param {Context} context 
@@ -10,6 +13,7 @@ class RouteEvent extends Event {
 
 /**
  * @typedef {{
+ *  name: string,
  *  shouldNavigate?: (context: Context) => {
  *   condition: () => boolean | (() => Promise<boolean>),
  *   redirect: string
@@ -66,6 +70,7 @@ export class Router extends EventTarget {
       });
       return /** @type {Route} */ (r);
     });
+    log('Initialized routes', this.routes);
 
     queueMicrotask(() => {
       this.navigate(new URL(window.location.href));
@@ -91,6 +96,7 @@ export class Router extends EventTarget {
 
   render() {
     const { params, query, url, title } = this.context;
+    log('Rendering route', { context: this.context, route: this.route });
     return this.route?.render({
       params,
       query,
@@ -119,6 +125,7 @@ export class Router extends EventTarget {
         return route;
       }
     }
+    log('No route matched', url);
     return null;
   }
   
@@ -163,22 +170,29 @@ export class Router extends EventTarget {
   async navigate(url) {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
-    }
-
+    }    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
+    log('Navigating', { context: this.context, route: this.route });
+
     const plugins = [
       ...(this.config?.plugins ?? []), 
       ...(this.route?.plugins ?? []), 
     ];
 
     for (const plugin of plugins) {
-      const result = await plugin?.shouldNavigate?.(this.context);
-      if (result) {
-        const condition = await result.condition();
-        if (!condition) {
-          url = new URL(result.redirect, this.baseUrl);
-          this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
+      try {
+        const result = await plugin?.shouldNavigate?.(this.context);
+        if (result) {
+          const condition = await result.condition();
+          if (!condition) {
+            url = new URL(result.redirect, this.baseUrl);
+            this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
+            log('Redirecting', { context: this.context, route: this.route });
+          }
         }
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on shouldNavigate hook`, e);
+        throw e;
       }
     }
 
@@ -187,7 +201,12 @@ export class Router extends EventTarget {
     }
 
     for (const plugin of plugins) {
-      await plugin?.beforeNavigation?.(this.context);
+      try {
+        await plugin?.beforeNavigation?.(this.context);
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on beforeNavigation hook`, e);
+        throw e;
+      }
     }
 
     window.history.pushState(null, '', `${url.pathname}${url.search}`);
@@ -195,7 +214,12 @@ export class Router extends EventTarget {
     this._notifyUrlChanged();
 
     for (const plugin of plugins) {
-      await plugin?.afterNavigation?.(this.context);
+      try {
+        await plugin?.afterNavigation?.(this.context);
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on afterNavigation hook`, e);
+        throw e;
+      }
     }
   }
 }

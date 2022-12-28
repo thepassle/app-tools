@@ -5,6 +5,7 @@
 export function jsonPrefixPlugin(jsonPrefix) {
   let responseType;
   return {
+    name: 'jsonPrefix',
     beforeFetch: ({responseType: type}) => {
       responseType = type;
     },

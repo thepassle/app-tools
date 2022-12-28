@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -27,6 +27,7 @@
   },
   "files": [
     "./pwa.js",
+    "./dialog.js",
     "./pwa/*.js",
     "./router.js",
     "./router/index.js",

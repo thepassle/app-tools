@@ -2,6 +2,7 @@ const FOCUS_ELEMENT_ID = 'router-focus-element';
 const SR_ONLY_STYLE = `position:absolute;top:0;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);clip-path:inset(50%);margin:-1px;`;
 
 export const resetFocus = {
+  name: 'resetFocus',
   afterNavigation: ({title}) => {
     let el = document.getElementById(FOCUS_ELEMENT_ID);
     if (!el) {

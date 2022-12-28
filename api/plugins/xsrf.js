@@ -8,6 +8,7 @@ function getCookie(name, _document = document) {
  *  xsrfCookieName?: string,
  *  xsrfHeaderName?: string,
  * }} options 
+ * @returns {import('../index').Plugin}
  */
 export function xsrfPlugin({
   xsrfCookieName = 'XSRF-TOKEN',
@@ -15,6 +16,7 @@ export function xsrfPlugin({
 } = {}) {
   const csrfToken = getCookie(xsrfCookieName);
   return {
+    name: 'xsrf',
     beforeFetch: (meta) => {
       if(csrfToken) {
         meta.headers.set(xsrfHeaderName, csrfToken);

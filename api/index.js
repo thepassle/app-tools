@@ -1,5 +1,9 @@
+import { createLogger } from '../utils/log.js';
+const log = createLogger('api');
+
 function handleStatus(response) {
   if (!response.ok) {
+    log('Response not ok', response.statusText);
     throw new Error(response.statusText);
   }
   return response;
@@ -20,6 +24,7 @@ function handleStatus(response) {
  *  beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void,
  *  afterFetch?: (res: Response) => Response | Promise<Response>,
  *  transform?: (data: any) => any,
+ *  name: string,
  *  handleError?: (e: Error) => boolean
  * }} Plugin
  * 
@@ -98,13 +103,19 @@ export class Api {
       url += `${(~url.indexOf('?') ? '&' : '?')}${new URLSearchParams(opts.params)}`;
     }
 
-    for(const { beforeFetch } of plugins) {
-      const overrides = await beforeFetch?.({ responseType, headers, fetchFn, baseURL, url, method, opts, data });
-      if(overrides) {
-        ({ responseType, headers, fetchFn, baseURL, url, method, opts, data } = {...overrides});
+    for(const plugin of plugins) {
+      try {
+        const overrides = await plugin?.beforeFetch?.({ responseType, headers, fetchFn, baseURL, url, method, opts, data });
+        if(overrides) {
+          ({ responseType, headers, fetchFn, baseURL, url, method, opts, data } = {...overrides});
+        }
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on afterFetch hook`);
+        throw e;
       }
     }
 
+    log('Fetching', { responseType, headers: Object.fromEntries(headers), fetchFn, baseURL, url, method, opts, data });
     return fetchFn(url, {
       method,
       headers,
@@ -121,8 +132,13 @@ export class Api {
     })
     /** [PLUGINS - AFTERFETCH] */
     .then(async res => {
-      for(const { afterFetch } of plugins) {
-        res = await afterFetch?.(res) ?? res;
+      for(const plugin of plugins) {
+        try {
+          res = await plugin?.afterFetch?.(res) ?? res;
+        } catch(e) {
+          log(`Plugin "${plugin.name}" error on afterFetch hook`)
+          throw e;
+        }
       }
       
       return res;
@@ -132,14 +148,20 @@ export class Api {
     /** [RESPONSETYPE] */
     .then(res => res[responseType]())
     .then(async data => {
-      for(const { transform } of plugins) {
-        data = await transform?.(data) ?? data;
+      for(const plugin of plugins) {
+        try {
+          data = await plugin?.transform?.(data) ?? data;
+        } catch(e) {
+          log(`Plugin "${plugin.name}" error on transform hook`)
+          throw e;
+        }
       }
-      
+      log('Fetch successful', data);
       return data;
     })
     /** [PLUGINS - HANDLEERROR] */
     .catch(async e => {
+      log('Fetch failed', e);
       const shouldThrow = (await Promise.all(plugins.map(({handleError}) => handleError?.(e) ?? false))).some(_ => !!_);
       if(shouldThrow) throw e;
     });

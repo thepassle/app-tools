@@ -8,6 +8,21 @@ npm i -S @thepassle/app-tools
 
 ## Usage
 
+### `log`
+
+You can enable logs via the `setDebug` function, or by setting a `?app-tools-debug=true` query param in the browser url.
+
+```js
+import { log, setDebug, getDebug } from '@thepassle/app-tools/utils.js';
+
+// Enable logs to show up in the console
+setDebug(true);
+
+getDebug(); // true
+
+log('foo', { foo: 'bar'});
+```
+
 ### `when`
 
 ```js
