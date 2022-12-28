@@ -2,23 +2,17 @@
   <head>
     <base href="/">
     <style>
-      dialog[app-tools] {
+      dialog[app-tools]#foo {
         opacity: 0;
+        background: purple;
         transform: translateY(40px);
         transition: opacity .3s ease-out, transform .3s ease-out;
       }
 
-      dialog[app-tools][open] {
+      dialog[app-tools][open]#foo {
         opacity: 1;
         transform: translateY(0);
       }
-
-      dialog#foo {
-        background: purple;
-      }
-      /* dialog#bar {
-        background: red;
-      } */
     </style>
   </head>
   <body>
@@ -38,11 +32,35 @@
 
     </script>
     <script type="module">
-      import { dialog } from './dialog/index.js';
+      import { Dialog } from './dialog/index.js';
       import { Api } from './api.js';
       import { render, html } from 'https://unpkg.com/lit?module';
       import { Router } from './router.js';
-      
+
+      export const dialog = new Dialog({
+        foo: modal({
+          title: 'foo',
+          import: () => Promise.resolve(),
+          render: ({parameters, title}) => html`<h1>${title}</h1><div>${parameters.foo}</div><button value="close">close</button>`
+        }),
+        bar: {
+          opening: ({dialog, parameters}) => {
+            dialog.id = 'bar';
+            dialog.form.innerHTML = 'hello world';
+          },
+        }
+      });
+
+      function modal(config) {
+        return {
+          opening: ({dialog, parameters}) => {
+            config.import();
+            dialog.id = 'foo';
+            render(config.render({parameters, title: config.title}), dialog.form);
+          },
+        }
+      }
+
       const router = new Router({
         plugins: [],
         fallback: '/404',
@@ -87,18 +105,12 @@
 
       dialogbtn1.addEventListener('click', async (e) => {
         dialog.open({id: 'foo', parameters: {foo: 'foo'}});
-        // await dialog.open({id: 'foo', parameters: {foo: 'foo'}});
       });
 
       dialogbtn2.addEventListener('click', (e) => {
         dialog.open({id: 'bar', parameters: {foo: 'bar'}});
       });
 
-      // dialog.addEventListener('opening', () => {console.log('dialog opening')});
-      // dialog.addEventListener('opened', () => {console.log('dialog opened')});
-      // dialog.addEventListener('closing', ({id, dialog}) => {});
-      // dialog.addEventListener('closed', () => {console.log('dialog closed')});
-      
       btn.addEventListener('click', async () => {
         try {
           api.get('https://pokeapi.co/api/v2/pokemon/1', { plugins: [] }).then(() => { console.log(1)});

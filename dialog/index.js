@@ -24,11 +24,11 @@ if (!el) {
   el.setAttribute(APP_TOOLS, '');
   el.id = DIALOG_STYLES_ID;
   el.innerHTML = `
-    html:has(dialog[open]) {
+    html:has(dialog[app-tools][open]) {
       overflow: hidden;
     }
 
-    dialog {
+    dialog[app-tools] {
       pointer-events: none;
       inset: 0;
       position: fixed;
@@ -39,14 +39,14 @@ if (!el) {
       height: 200px;
     }
 
-    dialog > form {
+    dialog[app-tools] > form[app-tools] {
       width: calc(100% - 10px);
       height: calc(100% - 10px);
       margin: 0;
       padding: 5px;
     }
 
-    dialog[open] {
+    dialog[app-tools][open] {
       pointer-events: auto;
     }
   `;
@@ -168,11 +168,9 @@ export class Dialog extends EventTarget {
     }
 
     this.__dialog = this.__initDialogNode();
-    log(`Openening dialog "${id}"`, { id, parameters, dialog: this.__dialog });
-
     document.body.appendChild(this.__dialog);
-    await onePaint();
 
+    log(`Openening dialog "${id}"`, { id, parameters, dialog: this.__dialog });
     this.__dialog.setAttribute('opening', '');
     this.dispatchEvent(new DialogStateEvent('opening', { id, dialog: this.__dialog }));
 
@@ -182,6 +180,7 @@ export class Dialog extends EventTarget {
       log(`Dialog "${this.#id}" error on opening hook`);
       throw e;
     }
+    await onePaint();
 
     this.__dialog.showModal();
     
@@ -211,33 +210,5 @@ export class Dialog extends EventTarget {
    */
   modify(cb) {
     cb(this.__dialog);
-  }
-}
-
-import { html, render } from 'https://unpkg.com/lit?module';
-
-export const dialog = new Dialog({
-  foo: modal({
-    title: 'foo',
-    import: () => Promise.resolve().then(() => {console.log('imported')}),
-    render: ({parameters, title}) => html`<h1>foo-modal parameters: ${parameters.foo}, title: ${title}</h1><button value="asd">click</button>`
-  }),
-  bar: {
-    opening: ({dialog, parameters}) => {
-      // debugger;
-      dialog.id = 'bar';
-      // render(html`<h1>bar</h1>`, dialog.form);
-    },
-    opened: ({dialog, parameters}) => {
-    }
-  }
-});
-
-function modal(config) {
-  return {
-    opening: ({dialog, parameters}) => {
-      config.import();
-      render(config.render({parameters, title: config.title}), dialog.form);
-    },
   }
 }
