@@ -50,6 +50,8 @@ await waitUntil(() => true, {
 ### `setAbortableTimeout`
 
 ```js
+import { setAbortableTimeout } from '@thepassle/app-tools/utils.js';
+
 const controller = new AbortController();
 const { signal } = controller;
 
