@@ -1,18 +1,24 @@
-const LOG_SYMBOL = Symbol.for('app-tools::log::1.x');
+const KEY = Symbol.for('app-tools::log::1.x');
+
+globalThis[KEY] = { 
+  setDebug, 
+  debug: new URL(window.location.href).searchParams.has('app-tools-debug')
+};
 
 export function setDebug(value) {
-  debug = !!value;
+  globalThis[KEY].debug = !!value;
 }
 
-window[LOG_SYMBOL] = { setDebug };
-let debug = new URL(window.location.href).searchParams.has('app-tools-debug');
+export function getDebug() {
+  return globalThis[KEY].debug;
+}
 
 /**
  * @param {string} action - describing the action
  * @param {*} data - any js value
  */
 export function log(action, data) {
-  if(debug) {
+  if(globalThis[KEY]) {
     console.groupCollapsed(`[app-tools] ${action}`);
     console.log(data);
     console.groupEnd();

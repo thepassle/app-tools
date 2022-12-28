@@ -95,7 +95,7 @@ export class Router extends EventTarget {
 
   render() {
     const { params, query, url, title } = this.context;
-    log('Rendering route', this.context);
+    log('Rendering route', { context: this.context, route: this.route });
     return this.route?.render({
       params,
       query,
@@ -171,7 +171,7 @@ export class Router extends EventTarget {
       url = new URL(url, this.baseUrl);
     }    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-    log('Navigating', this.context);
+    log('Navigating', { context: this.context, route: this.route });
 
     const plugins = [
       ...(this.config?.plugins ?? []), 
@@ -184,8 +184,8 @@ export class Router extends EventTarget {
         const condition = await result.condition();
         if (!condition) {
           url = new URL(result.redirect, this.baseUrl);
-          log('Redirecting', this.context);
           this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
+          log('Redirecting', { context: this.context, route: this.route });
         }
       }
     }
