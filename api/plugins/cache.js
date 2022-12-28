@@ -9,6 +9,7 @@ export function cachePlugin({maxAge} = {}) {
   const cache = new Map();
 
   return {
+    name: 'cache',
     beforeFetch: (meta) => {
       const { method, url } = meta;
       requestId = `${method}:${url}`;

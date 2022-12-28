@@ -16,6 +16,7 @@ export function debouncePlugin(opts = {
   let debounced;
 
   return {
+    name: 'debounce',
     beforeFetch: (meta) => {
       if(!debounced) {
         const originalFetch = meta.fetchFn;

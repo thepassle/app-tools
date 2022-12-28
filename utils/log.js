@@ -18,7 +18,7 @@ export function getDebug() {
  * @param {*} data - any js value
  */
 export function log(action, data) {
-  if(globalThis[KEY]) {
+  if(globalThis[KEY].debug) {
     console.groupCollapsed(`[app-tools] ${action}`);
     console.log(data);
     console.groupEnd();

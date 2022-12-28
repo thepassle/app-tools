@@ -1,10 +1,27 @@
 <html>
   <head>
     <base href="/">
+    <style>
+      dialog[app-tools]#foo {
+        opacity: 0;
+        background: purple;
+        transform: translateY(40px);
+        transition: opacity .3s ease-out, transform .3s ease-out;
+      }
+
+      dialog[app-tools][open]#foo {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
   </head>
   <body>
-    <button style="width: 400px; height:100px" id="btn">click</button>
-    <button style="width: 400px; height:100px" id="btn2">error</button>
+    
+    <button style="width: 250; height:75px" id="btn">api success</button>
+    <button style="width: 250; height:75px" id="btn2">api error</button>
+    <br/>
+    <button style="width: 250; height:75px" id="dialogbtn1">dialog foo</button>
+    <button style="width: 250; height:75px" id="dialogbtn2">dialog bar</button>
     <ul>
       <li><a href="/">home</a></li>
       <li><a href="/foo">foo</a></li>
@@ -12,16 +29,40 @@
     </ul>
     <main></main>
     <script type="module">
+
+    </script>
+    <script type="module">
+      import { Dialog } from './dialog/index.js';
+      import { Api } from './api.js';
+      import { render, html } from 'https://unpkg.com/lit?module';
       import { Router } from './router.js';
-      
-      const router = new Router({
-        plugins: [          
-          {
-            beforeNavigation: (context) => {
-              context.title = `foo ${context.title}`
-            }
+
+      export const dialog = new Dialog({
+        foo: modal({
+          title: 'foo',
+          import: () => Promise.resolve(),
+          render: ({parameters, title}) => html`<h1>${title}</h1><div>${parameters.foo}</div><button value="close">close</button>`
+        }),
+        bar: {
+          opening: ({dialog, parameters}) => {
+            dialog.id = 'bar';
+            dialog.form.innerHTML = 'hello world';
           },
-        ],
+        }
+      });
+
+      function modal(config) {
+        return {
+          opening: ({dialog, parameters}) => {
+            config.import();
+            dialog.id = 'foo';
+            render(config.render({parameters, title: config.title}), dialog.form);
+          },
+        }
+      }
+
+      const router = new Router({
+        plugins: [],
         fallback: '/404',
         routes: [
           {
@@ -53,15 +94,26 @@
         const route = router.render();
         document.querySelector('main').innerHTML = route;
       });
-    </script>
-    <script type="module">
-      import { pwa } from './pwa.js';
-      import { Api } from './api.js';
+
       const api = new Api({plugins: []});
-      
+
+      window.process = {
+        env: {
+          NODE_ENV: ''
+        }
+      };
+
+      dialogbtn1.addEventListener('click', async (e) => {
+        dialog.open({id: 'foo', parameters: {foo: 'foo'}});
+      });
+
+      dialogbtn2.addEventListener('click', (e) => {
+        dialog.open({id: 'bar', parameters: {foo: 'bar'}});
+      });
+
       btn.addEventListener('click', async () => {
         try {
-          api.get('https://pokeapi.co/api/v2/pokemon/1');
+          api.get('https://pokeapi.co/api/v2/pokemon/1', { plugins: [] }).then(() => { console.log(1)});
         } catch (e) {
           console.error(e);
         }

@@ -13,6 +13,7 @@ class RouteEvent extends Event {
 
 /**
  * @typedef {{
+ *  name: string,
  *  shouldNavigate?: (context: Context) => {
  *   condition: () => boolean | (() => Promise<boolean>),
  *   redirect: string
@@ -95,7 +96,7 @@ export class Router extends EventTarget {
 
   render() {
     const { params, query, url, title } = this.context;
-    log('Rendering route', { context: this.context, route: this.route });
+    log(`Rendering route ${url.pathname}`, { context: this.context, route: this.route });
     return this.route?.render({
       params,
       query,
@@ -124,7 +125,7 @@ export class Router extends EventTarget {
         return route;
       }
     }
-    log('No route matched', url);
+    log(`No route matched for ${url.pathname}`, url);
     return null;
   }
   
@@ -171,7 +172,7 @@ export class Router extends EventTarget {
       url = new URL(url, this.baseUrl);
     }    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-    log('Navigating', { context: this.context, route: this.route });
+    log(`Navigating to ${url.pathname}`, { context: this.context, route: this.route });
 
     const plugins = [
       ...(this.config?.plugins ?? []), 
@@ -179,14 +180,19 @@ export class Router extends EventTarget {
     ];
 
     for (const plugin of plugins) {
-      const result = await plugin?.shouldNavigate?.(this.context);
-      if (result) {
-        const condition = await result.condition();
-        if (!condition) {
-          url = new URL(result.redirect, this.baseUrl);
-          this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-          log('Redirecting', { context: this.context, route: this.route });
+      try {
+        const result = await plugin?.shouldNavigate?.(this.context);
+        if (result) {
+          const condition = await result.condition();
+          if (!condition) {
+            url = new URL(result.redirect, this.baseUrl);
+            this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
+            log('Redirecting', { context: this.context, route: this.route });
+          }
         }
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on shouldNavigate hook`, e);
+        throw e;
       }
     }
 
@@ -195,7 +201,12 @@ export class Router extends EventTarget {
     }
 
     for (const plugin of plugins) {
-      await plugin?.beforeNavigation?.(this.context);
+      try {
+        await plugin?.beforeNavigation?.(this.context);
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on beforeNavigation hook`, e);
+        throw e;
+      }
     }
 
     window.history.pushState(null, '', `${url.pathname}${url.search}`);
@@ -203,7 +214,12 @@ export class Router extends EventTarget {
     this._notifyUrlChanged();
 
     for (const plugin of plugins) {
-      await plugin?.afterNavigation?.(this.context);
+      try {
+        await plugin?.afterNavigation?.(this.context);
+      } catch(e) {
+        log(`Plugin "${plugin.name}" error on afterNavigation hook`, e);
+        throw e;
+      }
     }
   }
 }

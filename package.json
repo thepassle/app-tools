@@ -1,16 +1,17 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "wtr api/api.test.js --node-resolve",
+    "test": "wtr **/*.test.js --node-resolve",
     "test:watch": "npm run test -- --watch"
   },
   "exports": {
     "./state.js": "./state.js",
     "./pwa.js": "./pwa.js",
+    "./dialog.js": "./dialog.js",
     "./pwa/*.js": "./pwa/*.js",
     "./api.js": "./api.js",
     "./router.js": "./router.js",
@@ -26,6 +27,8 @@
   },
   "files": [
     "./pwa.js",
+    "./dialog.js",
+    "./dialog/*.js",
     "./pwa/*.js",
     "./router.js",
     "./router/index.js",

@@ -1,4 +1,5 @@
 export const checkServiceWorkerUpdate = {
+  name: 'checkServiceWorkerUpdate',
   beforeNavigation: () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistration().then(registration => {

@@ -6,6 +6,7 @@ export function abortPlugin() {
   const requests = new Map();
 
   return {
+    name: 'abort',
     beforeFetch: (meta) => {
       const { method, url } = meta;
       requestId = `${method}:${url}`;

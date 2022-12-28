@@ -9,6 +9,7 @@ export function loggerPlugin({collapsed = true} = {}) {
   let start;
   const group = collapsed ? 'groupCollapsed' : 'group';
   return {
+    name: 'logger',
     beforeFetch: (meta) => {
       console[group](`[START] [${new Date().toLocaleTimeString()}] [${meta.method}] "${meta.url}"`);
       console.table([meta]);

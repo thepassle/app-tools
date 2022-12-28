@@ -3,6 +3,7 @@
  */
 export function lazy(fn) {
   return {
+    name: 'lazy',
     beforeNavigation: () => {
       fn();
     }
