@@ -3,10 +3,19 @@
     <base href="/">
     <style>
       dialog[app-tools]#foo {
+        border-radius: 10px;
         opacity: 0;
-        background: purple;
+        background: white;
+        border: none;
+        box-shadow: 0 0 4px 0 rgb(0 0 0 / 12%), 0 4px 4px 0 rgb(0 0 0 / 24%);
         transform: translateY(40px);
         transition: opacity .3s ease-out, transform .3s ease-out;
+      }
+
+      dialog[app-tools]#foo form[app-tools] {
+        padding: 20px;
+        width: calc(100% - 40px);
+        height: calc(100% - 40px);
       }
 
       dialog[app-tools][open]#foo {
@@ -25,7 +34,7 @@
     <ul>
       <li><a href="/">home</a></li>
       <li><a href="/foo">foo</a></li>
-      <li><a href="/bar/123">bar</a></li>
+      <li><a href="/bar/123?user=foo">bar</a></li>
     </ul>
     <main></main>
     <script type="module">
