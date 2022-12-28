@@ -2,39 +2,32 @@
   <head>
     <base href="/">
     <style>
-
-      html:has(dialog[open]) {
-        overflow: hidden;
-      }
-
-      dialog {
-        background: blue;
-        pointer-events: none;
+      dialog[app-tools] {
         opacity: 0;
-        inset: 0;
-        position: fixed;
-        display: block;
         transform: translateY(40px);
         transition: opacity .3s ease-out, transform .3s ease-out;
       }
 
-      dialog[open] {
+      dialog[app-tools][open] {
         opacity: 1;
-        pointer-events: auto;
         transform: translateY(0);
       }
 
-      dialog::backdrop {
-        opacity: .4;
-        background-color: #cecece;
+      dialog#foo {
+        background: purple;
       }
+      /* dialog#bar {
+        background: red;
+      } */
     </style>
   </head>
   <body>
     
-    <button style="width: 600px; height:200px" id="btn">api success</button>
-    <button style="width: 600px; height:200px" id="btn2">api error</button>
-    <button style="width: 600px; height:200px" id="dialogbtn1">dialog foo</button>
+    <button style="width: 250; height:75px" id="btn">api success</button>
+    <button style="width: 250; height:75px" id="btn2">api error</button>
+    <br/>
+    <button style="width: 250; height:75px" id="dialogbtn1">dialog foo</button>
+    <button style="width: 250; height:75px" id="dialogbtn2">dialog bar</button>
     <ul>
       <li><a href="/">home</a></li>
       <li><a href="/foo">foo</a></li>
@@ -92,13 +85,18 @@
         }
       };
 
-      dialogbtn1.addEventListener('click', (e) => {
-        dialog.open({id: 'foo', parameters: {foo: 'bar'}});
+      dialogbtn1.addEventListener('click', async (e) => {
+        dialog.open({id: 'foo', parameters: {foo: 'foo'}});
+        // await dialog.open({id: 'foo', parameters: {foo: 'foo'}});
+      });
+
+      dialogbtn2.addEventListener('click', (e) => {
+        dialog.open({id: 'bar', parameters: {foo: 'bar'}});
       });
 
       // dialog.addEventListener('opening', () => {console.log('dialog opening')});
       // dialog.addEventListener('opened', () => {console.log('dialog opened')});
-      // dialog.addEventListener('closing', () => {console.log('dialog closing')});
+      // dialog.addEventListener('closing', ({id, dialog}) => {});
       // dialog.addEventListener('closed', () => {console.log('dialog closed')});
       
       btn.addEventListener('click', async () => {

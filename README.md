@@ -1,6 +1,6 @@
 # `@thepassle/app-tools`
 
-Collection of tools I regularly use to build apps. Maybe they're useful to somebody else. Maybe not.
+Collection of tools I regularly use to build apps. Maybe they're useful to somebody else. Maybe not. Most of these are thin wrappers around native API's, like the native `<dialog>` element, `fetch` API, and `URLPattern`.
 
 ## Packages
 

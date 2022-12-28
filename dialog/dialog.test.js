@@ -7,30 +7,30 @@ describe('Dialog', () => {
 
   beforeEach(() => {
     dialog = new Dialog({
-      foo: { opening: ({dialog}) => dialog.container.innerHTML = 'hello world' }
+      foo: { opening: ({dialog}) => dialog.form.innerHTML = 'hello world' }
     });
   });
 
-  afterEach(() => {
-    if(dialog.open) dialog.close();
+  afterEach(async () => {
+    if(dialog.open) await dialog.close();
   });
 
   it('opens', async () => {
-    dialog.open({id: 'foo'});
+    await dialog.open({id: 'foo'});
     await dialog.opened;
     expect(dialog.isOpen).to.be.true;
   });
 
   it('closes', async () => {
-    dialog.open({id: 'foo'});
+    await dialog.open({id: 'foo'});
     await dialog.opened;
-    dialog.close();
+    await dialog.close();
     await dialog.closed;
     expect(dialog.isOpen).to.be.false;
   });
 
   it('modify', async () => {
-    dialog.open({id: 'foo'});
+    await dialog.open({id: 'foo'});
 
     const d = await dialog.opened;
     dialog.modify(node => {node.classList.add('foo')});
@@ -47,28 +47,15 @@ describe('Dialog', () => {
     };
     const dialog = new Dialog({foo: cbs});
 
-    dialog.open({id: 'foo'});
-    
-    expect(cbs.opening.called).to.be.true;
-    expect(cbs.opened.called).to.be.false;
-    expect(cbs.closing.called).to.be.false;
-    expect(cbs.closed.called).to.be.false;
-
+    await dialog.open({id: 'foo'});
     await dialog.opened;
-
+    
     expect(cbs.opening.called).to.be.true;
     expect(cbs.opened.called).to.be.true;
     expect(cbs.closing.called).to.be.false;
     expect(cbs.closed.called).to.be.false;
-    
-    setTimeout(() => dialog.close());
-    await oneEvent(dialog.__dialog, 'close');
 
-    expect(cbs.opening.called).to.be.true;
-    expect(cbs.opened.called).to.be.true;
-    expect(cbs.closing.called).to.be.true;
-    expect(cbs.closed.called).to.be.false;
-    
+    dialog.close()
     await dialog.closed;
 
     expect(cbs.opening.called).to.be.true;

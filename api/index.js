@@ -115,7 +115,7 @@ export class Api {
       }
     }
 
-    log('Fetching', { responseType, headers: Object.fromEntries(headers), fetchFn, baseURL, url, method, opts, data });
+    log(`Fetching ${method} ${url}`, { responseType, headers: Object.fromEntries(headers), fetchFn, baseURL, url, method, opts, data });
     return fetchFn(url, {
       method,
       headers,
@@ -156,12 +156,12 @@ export class Api {
           throw e;
         }
       }
-      log('Fetch successful', data);
+      log(`Fetch successful ${method} ${url}`, data);
       return data;
     })
     /** [PLUGINS - HANDLEERROR] */
     .catch(async e => {
-      log('Fetch failed', e);
+      log(`Fetch failed ${method} ${url}`, e);
       const shouldThrow = (await Promise.all(plugins.map(({handleError}) => handleError?.(e) ?? false))).some(_ => !!_);
       if(shouldThrow) throw e;
     });
