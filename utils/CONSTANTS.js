@@ -1,0 +1,1 @@
+export const APP_TOOLS = 'app-tools';

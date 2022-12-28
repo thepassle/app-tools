@@ -1,3 +1,7 @@
+import { APP_TOOLS } from '../utils/CONSTANTS.js';
+import { setupGlobalDialogStyles } from './utils.js';
+import { DialogStateEvent } from './events.js';
+import { onePaint, animationsComplete } from '../utils/async.js';
 import { createLogger } from '../utils/log.js';
 const log = createLogger('dialog');
 
@@ -11,60 +15,7 @@ const log = createLogger('dialog');
  * }>} Config 
  */
 
-class DialogStateEvent extends Event {
-  /** 
-   * @param {'opening' | 'opened' | 'closing' | 'closed'} kind
-   * @param {{
-   *  id: string,
-   *  dialog: DialogNode,
-   * }} opts 
-   */
-  constructor(kind, {id, dialog}) {
-    super(kind);
-    this.dialog = dialog;
-    this.id = id;
-  }
-}
-
-const APP_TOOLS = 'app-tools';
-const DIALOG_STYLES_ID = 'dialog-styles';
-let el = document.head.querySelector(`style[${APP_TOOLS}]#${DIALOG_STYLES_ID}`);
-if (!el) {
-  el = document.createElement('style');
-  el.setAttribute(APP_TOOLS, '');
-  el.id = DIALOG_STYLES_ID;
-  el.innerHTML = `
-    html:has(dialog[app-tools][open]) {
-      overflow: hidden;
-    }
-
-    dialog[app-tools] {
-      pointer-events: none;
-      inset: 0;
-      position: fixed;
-      display: block;
-
-      padding: 0;
-      width: 200px;
-      height: 200px;
-    }
-
-    dialog[app-tools] > form[app-tools] {
-      width: calc(100% - 10px);
-      height: calc(100% - 10px);
-      margin: 0;
-      padding: 5px;
-    }
-
-    dialog[app-tools][open] {
-      pointer-events: auto;
-    }
-  `;
-  document.head.prepend(el);
-}
-
-const onePaint = () => new Promise(r => requestAnimationFrame(r));
-const animationsComplete = element => Promise.allSettled(element.getAnimations().map(animation => animation.finished));
+setupGlobalDialogStyles();
 
 export class Dialog extends EventTarget {
   #id = '';
@@ -87,7 +38,7 @@ export class Dialog extends EventTarget {
    * @returns {DialogNode}
    */
   __initDialogNode() {
-    const dialogNode = /** @type {HTMLDialogElement & { form: HTMLFormElement }} */ (document.createElement('dialog'));
+    const dialogNode = /** @type {DialogNode} */ (document.createElement('dialog'));
     dialogNode.setAttribute(APP_TOOLS, '');
     dialogNode.addEventListener('close', this.__onDialogClose);
     dialogNode.addEventListener('mousedown', this.__onLightDismiss);
@@ -114,7 +65,7 @@ export class Dialog extends EventTarget {
 
   __onDialogClose = async () => {
     const id = this.#id;
-    const d = /** @type {HTMLDialogElement & { form: HTMLFormElement }} */ (this.__dialog);
+    const d = /** @type {DialogNode} */ (this.__dialog);
 
     log(`Closing dialog "${id}"`, { 
       id, 
