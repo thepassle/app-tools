@@ -14,10 +14,13 @@ export function debounce(f) {
   };
 }
 
+/**
+ * @returns {Promise<number>}
+ */
 export const onePaint = () => new Promise(r => requestAnimationFrame(r));
 /**
  * @param {HTMLElement} element 
- * @returns {Promise<*>}
+ * @returns {Promise<PromiseSettledResult<Animation>[]>}
  */
 export const animationsComplete = element => Promise.allSettled(element.getAnimations().map(animation => animation.finished));
 
