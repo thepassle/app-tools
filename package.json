@@ -28,6 +28,7 @@
   "files": [
     "./pwa.js",
     "./dialog.js",
+    "./dialog/*.js",
     "./pwa/*.js",
     "./router.js",
     "./router/index.js",
