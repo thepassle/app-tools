@@ -90,7 +90,7 @@ export class Dialog extends EventTarget {
     }
   }
 
-  close = (kind = '') => {
+  close = (kind = 'programmatic') => {
     this.__dialog?.close(kind);
   }
 

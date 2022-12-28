@@ -50,6 +50,10 @@ dialog.addEventListener('closed', ({id, dialog}) => {
   if(dialog.returnValue === 'dismiss') {
     console.log('Dialog was closed via light dismiss');
   }
+
+  if(dialog.returnValue === 'programmatic') {
+    console.log('Dialog was closed via `dialog.close()`');
+  }
 });
 
 dialog.modify((dialogNode) => {
