@@ -10,6 +10,12 @@ function _debounce(promise, opts = { timeout: 1000 }) {
   };
 }
 
+/**
+ * @param {{
+ *  timeout: number
+ * }} opts 
+ * @returns {import('../index.js').Plugin}
+ */
 export function debouncePlugin(opts = {
   timeout: 1000
 }) {

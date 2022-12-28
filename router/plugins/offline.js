@@ -1,5 +1,7 @@
 /**
  * @example offlinePlugin('/my-offline-page')
+ * @param {string} offlineRoute
+ * @returns {import('../index.js').Plugin}
  */
 export function offlinePlugin(offlineRoute = '/offline') {
   return {

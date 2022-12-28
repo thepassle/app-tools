@@ -1,3 +1,7 @@
+/**
+ * @param {Function} f 
+ * @returns {<Args>(...args: Args[]) => void}
+ */
 export function debounce(f) {
   let timeoutId;
 
@@ -10,6 +14,30 @@ export function debounce(f) {
   };
 }
 
+/**
+ * @param {() => void} f 
+ * @param {number} ms 
+ * @param {{
+ *  signal?: AbortSignal
+ * }} options
+ */
+export function setAbortableTimeout(f, ms, {signal}) {
+  let t;
+  if(!signal?.aborted) {
+    t = setTimeout(f, ms);
+  }
+  signal?.addEventListener('abort', () => clearTimeout(t), {once: true});
+};
+
+/**
+ * @param {() => boolean} predicate 
+ * @param {{
+ *  timeout?: number,
+ *  message?: string,
+ *  interval?: number
+ * }} options 
+ * @returns {Promise<void>}
+ */
 export function waitUntil(predicate, options = {}) {
   const { 
     timeout = 1000,

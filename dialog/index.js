@@ -1,12 +1,22 @@
 import { createLogger } from '../utils/log.js';
 const log = createLogger('dialog');
 
+/**
+ * @typedef {HTMLDialogElement & { form: HTMLFormElement }} DialogNode
+ * @typedef {Record<string, {
+ *  opening?: <Parameters>(opts: {dialog: DialogNode, parameters: Parameters}) => void,
+ *  opened?: <Parameters>(opts: {dialog: DialogNode, parameters: Parameters}) => void,
+ *  closing?: (opts: {dialog: DialogNode}) => void,
+ *  closed?: (opts: {dialog: DialogNode}) => void,
+ * }>} Config 
+ */
+
 class DialogStateEvent extends Event {
   /** 
    * @param {'opening' | 'opened' | 'closing' | 'closed'} kind
    * @param {{
    *  id: string,
-   *  dialog: HTMLDialogElement & { form: HTMLFormElement },
+   *  dialog: DialogNode,
    * }} opts 
    */
   constructor(kind, {id, dialog}) {
@@ -58,16 +68,24 @@ const animationsComplete = element => Promise.allSettled(element.getAnimations()
 
 export class Dialog extends EventTarget {
   #id = '';
+  /** @type {Config} */
   #config = {};
   isOpen = false;
   opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
   closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
 
+  /**
+   * 
+   * @param {Config} config 
+   */
   constructor(config) {
     super();
     this.#config = config;
   }
 
+  /**
+   * @returns {DialogNode}
+   */
   __initDialogNode() {
     const dialogNode = /** @type {HTMLDialogElement & { form: HTMLFormElement }} */ (document.createElement('dialog'));
     dialogNode.setAttribute(APP_TOOLS, '');
@@ -207,6 +225,7 @@ export class Dialog extends EventTarget {
    * 
    * @example
    * dialog.modify(node => {node.classList.add('foo')});
+   * @param {(dialog: DialogNode | undefined) => void} cb
    */
   modify(cb) {
     cb(this.__dialog);

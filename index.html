@@ -8,8 +8,8 @@
         background: white;
         border: none;
         box-shadow: 0 0 4px 0 rgb(0 0 0 / 12%), 0 4px 4px 0 rgb(0 0 0 / 24%);
-        transform: translateY(40px);
-        transition: opacity .3s ease-out, transform .3s ease-out;
+        transform: translateY(40px) scale(0.7);
+        transition: opacity .3s ease-out, transform .3s ease-out, scale .1s ease-out;
       }
 
       dialog[app-tools]#foo form[app-tools] {
@@ -20,7 +20,7 @@
 
       dialog[app-tools][open]#foo {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
     </style>
   </head>

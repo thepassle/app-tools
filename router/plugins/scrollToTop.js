@@ -1,3 +1,6 @@
+/**
+ * @type {import('../index.js').Plugin}
+ */
 export const scrollToTop = {
   name: 'scrollToTop',
   beforeNavigation: () => {

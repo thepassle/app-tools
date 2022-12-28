@@ -96,8 +96,8 @@ export class Router extends EventTarget {
 
   render() {
     const { params, query, url, title } = this.context;
-    log(`Rendering route ${url.pathname}`, { context: this.context, route: this.route });
-    return this.route?.render({
+    log(`Rendering route ${url.pathname}${url.search}`, { context: this.context, route: this.route });
+    return this.route?.render?.({
       params,
       query,
       url,
@@ -125,7 +125,7 @@ export class Router extends EventTarget {
         return route;
       }
     }
-    log(`No route matched for ${url.pathname}`, url);
+    log(`No route matched for ${url.pathname}${url.search}`, url);
     return null;
   }
   
@@ -172,8 +172,9 @@ export class Router extends EventTarget {
       url = new URL(url, this.baseUrl);
     }    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-    log(`Navigating to ${url.pathname}`, { context: this.context, route: this.route });
+    log(`Navigating to ${url.pathname}${url.search}`, { context: this.context, route: this.route });
 
+    /** @type {Plugin[]} */
     const plugins = [
       ...(this.config?.plugins ?? []), 
       ...(this.route?.plugins ?? []), 

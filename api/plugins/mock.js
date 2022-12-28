@@ -1,17 +1,4 @@
-/**
- * @param {() => void} f 
- * @param {number} ms 
- * @param {{
- *  signal?: AbortSignal
- * }} [options]
- */
-function setAbortableTimeout(f, ms, {signal}) {
-  let t;
-  if(!signal?.aborted) {
-    t = setTimeout(f, ms);
-  }
-  signal?.addEventListener('abort', () => clearTimeout(t), {once: true});
-};
+import { setAbortableTimeout } from '../../utils/async.js';
 
 /**
  * @param {Response | (() => Response) | (() => Promise<Response>)} response

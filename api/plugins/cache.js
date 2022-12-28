@@ -1,10 +1,10 @@
 const TEN_MINUTES = 1000 * 60 * 10;
 
 /**
- * @param {{maxAge?: number}} [options]
+ * @param {{maxAge?: number}} options
  * @returns {import('../index').Plugin}
  */
-export function cachePlugin({maxAge} = {}) {
+export function cachePlugin({maxAge = TEN_MINUTES} = {}) {
   let requestId;
   const cache = new Map();
 
@@ -16,7 +16,7 @@ export function cachePlugin({maxAge} = {}) {
 
       if(cache.has(requestId)) {
         const cached = cache.get(requestId);
-        if(cached.updatedAt > Date.now() - (maxAge || TEN_MINUTES)) {
+        if(cached.updatedAt > Date.now() - (maxAge)) {
           meta.fetchFn = () => Promise.resolve(new Response(JSON.stringify(cached.data), {status: 200}));
           return meta;
         }

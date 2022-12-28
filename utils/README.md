@@ -47,6 +47,21 @@ await waitUntil(() => true, {
 });
 ```
 
+### `setAbortableTimeout`
+
+```js
+const controller = new AbortController();
+const { signal } = controller;
+
+setAbortableTimeout(
+  () => { console.log(1); }, 
+  2000, 
+  { signal }
+);
+
+controller.abort();
+```
+
 ### `debounce`
 
 ```js
