@@ -22,6 +22,11 @@
         opacity: 1;
         transform: translateY(0) scale(1);
       }
+
+      dialog[app-tools]#context {
+        width: 150px;
+        height: 50px;
+      }
     </style>
   </head>
   <body>
@@ -31,21 +36,30 @@
     <br/>
     <button style="width: 250; height:75px" id="dialogbtn1">dialog foo</button>
     <button style="width: 250; height:75px" id="dialogbtn2">dialog bar</button>
+    <button style="width: 250; height:75px" id="context1">dialog bar</button>
     <ul>
       <li><a href="/">home</a></li>
       <li><a href="/foo">foo</a></li>
       <li><a href="/bar/123?user=foo">bar</a></li>
     </ul>
     <main></main>
-    <script type="module">
-
+    <script>
+      // For floating-ui -.-
+      window.process = {
+        env: {
+          NODE_ENV: ''
+        }
+      };
     </script>
     <script type="module">
       import { Dialog } from './dialog/index.js';
       import { Api } from './api.js';
       import { render, html } from 'https://unpkg.com/lit?module';
+      import { computePosition } from 'https://unpkg.com/@floating-ui/dom?module';
       import { Router } from './router.js';
+      import { media } from './utils/media.js';
 
+      
       export const dialog = new Dialog({
         foo: modal({
           title: 'foo',
@@ -57,8 +71,31 @@
             dialog.id = 'bar';
             dialog.form.innerHTML = 'hello world';
           },
-        }
+        },
+        context: context()
       });
+
+
+      function context(config = {}) {
+        return {
+          opening: async ({dialog, parameters}) => {
+            dialog.id = 'context';
+            render(parameters.template(), dialog.form);
+
+            if (!media.MAX.XS()) {
+              const { x, y } = await computePosition(
+                parameters.target, 
+                dialog, 
+                { placement: 'top-right'}
+              );
+              Object.assign(dialog.style, {
+                marginLeft: `${x}px`,
+                marginTop: `${y}px`,
+              });
+            }
+          }
+        }
+      }
 
       function modal(config) {
         return {
@@ -106,18 +143,19 @@
 
       const api = new Api({plugins: []});
 
-      window.process = {
-        env: {
-          NODE_ENV: ''
-        }
-      };
-
       dialogbtn1.addEventListener('click', async (e) => {
         dialog.open({id: 'foo', parameters: {foo: 'foo'}});
       });
 
       dialogbtn2.addEventListener('click', (e) => {
         dialog.open({id: 'bar', parameters: {foo: 'bar'}});
+      });
+
+      context1.addEventListener('click', (e) => {
+        dialog.open({id: 'context', parameters: {
+          target: e.target,
+          template: () => html`<h2>hello context menu</h2>`
+        }});
       });
 
       btn.addEventListener('click', async () => {

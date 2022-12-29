@@ -202,3 +202,43 @@ const dialog = new Dialog({
 
 dialog.open({id: 'foo', parameters: { foo: 'bar' }});
 ```
+
+### Context menu
+
+```js
+import { computePosition } from '@floating-ui/dom';
+import { Dialog } from '@thepassle/app-tools';
+
+export const dialog = new Dialog({
+  context: context()
+});
+
+function context() {
+  return {
+    opening: async ({dialog, parameters}) => {
+      dialog.id = 'context';
+      render(parameters.template(), dialog.form);
+
+      if (!media.MAX.XS()) {
+        const { x, y } = await computePosition(
+          parameters.target, 
+          dialog, 
+          { placement: 'bottom'}
+        );
+        Object.assign(dialog.style, {
+          marginLeft: `${x}px`,
+          marginTop: `${y}px`,
+        });
+      }
+    }
+  }
+}
+
+dialog.open({
+  id: 'context', 
+  parameters: {
+    target: e.target,
+    template: () => html`<h1>hello world</h1>`
+  }
+});
+```
