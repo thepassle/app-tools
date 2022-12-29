@@ -262,10 +262,30 @@ const router = new Router({
 });
 ```
 
+### `data`
+
+```js
+import { api } from '@thepassle/app-tools/api.js';
+import { data } from '@thepassle/app-tools/router/plugins/data.js';
+
+const router = new Router({
+  routes: [
+    {
+      path: '/pokemon/:id',
+      title: (context) => `Pokemon ${context.params.id}`,
+      plugins: [
+        data((context) => api.get(`https://pokeapi.co/api/v2/pokemon/${context.params.id}`)),
+      ],
+      render: (context) => html`<pokemon-card .data=${context.data}></pokemon-card>`
+    },
+  ]
+});
+```
+
 ### `redirect`
 
 ```js
-import { lazy } from '@thepassle/app-tools/router/plugins/redirect.js';
+import { lazy } from '@thepassle/app-tools/router/plugins/lazy.js';
 
 const router = new Router({
   routes: [

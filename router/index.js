@@ -25,7 +25,8 @@ class RouteEvent extends Event {
  *  title?: string,
  *  query: Object,
  *  params: Object,
- *  url: URL
+ *  url: URL,
+ *  [key: string]: any
  * }} Context
  * @typedef {{
  *  path: string,

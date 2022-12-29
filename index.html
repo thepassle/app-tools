@@ -181,9 +181,10 @@
             title: 'Foo',
             plugins: [
               {
-                beforeNavigation: (context) => {
+                beforeNavigation: async (context) => {
+                  const r = await api.get('https://pokeapi.co/api/v2/pokemon/1');
                   console.log(1, context);
-                  context.data = {foo: 'foo'};
+                  context.data = r;
                 }
               }
             ],
