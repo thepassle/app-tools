@@ -2,6 +2,12 @@
   <head>
     <base href="/">
     <style>
+      body,
+      html{
+        margin:0;
+        padding:0;
+      }
+
       dialog[app-tools]#foo {
         border-radius: 10px;
         opacity: 0;
@@ -23,9 +29,39 @@
         transform: translateY(0) scale(1);
       }
 
-      dialog[app-tools]#context {
-        width: 150px;
-        height: 50px;
+      @media (min-width: 480px) {
+        dialog[app-tools]#context {
+          width: 150px;
+          height: 50px;
+          opacity: 0;
+          transform: scale(0.7);
+          transform-origin: top right;
+          transition: opacity .1s ease-out, transform .1s ease-out, scale .1s ease-out;
+        }
+  
+        dialog[app-tools][open]#context {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @media (max-width: 480px) {
+        dialog[app-tools]#context {
+          margin-bottom: 0;
+          margin-right: 0;
+          margin-left: 0;
+          padding: revert;
+          width: 100%;
+          border-color: white;
+          opacity: 0;
+          transform: translateY(100px);
+          transition: opacity .1s ease-out, transform .1s ease-out;
+        }
+
+        dialog[app-tools][open]#context {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
@@ -75,24 +111,48 @@
         context: context()
       });
 
+      async function compute(target, dialog) {
+        const { x, y } = await computePosition(
+          target, 
+          dialog, 
+          { 
+            placement: 'bottom-end',
+          }
+        );
+        Object.assign(dialog.style, {
+          marginLeft: `${x}px`,
+          marginTop: `${y}px`,
+        });
+      }
 
       function context(config = {}) {
+        let handleResize;
         return {
           opening: async ({dialog, parameters}) => {
             dialog.id = 'context';
             render(parameters.template(), dialog.form);
 
-            if (!media.MAX.XS()) {
-              const { x, y } = await computePosition(
-                parameters.target, 
-                dialog, 
-                { placement: 'top-right'}
-              );
-              Object.assign(dialog.style, {
-                marginLeft: `${x}px`,
-                marginTop: `${y}px`,
-              });
+            handleResize = async (e) => {
+              if(!media.MAX.XS()) {
+                await compute(parameters.target, dialog);
+              } else {
+                Object.assign(dialog.style, {
+                  marginBottom: '0px',
+                  marginLeft: '0px',
+                  marginRight: '0px',
+                  marginTop: 'revert'
+                });
+              }
             }
+
+            window.addEventListener('resize', handleResize);
+
+            if (!media.MAX.XS()) {
+              await compute(parameters.target, dialog);
+            }
+          },
+          closing: () => {
+            window.removeEventListener('resize', handleResize);
           }
         }
       }
@@ -154,7 +214,7 @@
       context1.addEventListener('click', (e) => {
         dialog.open({id: 'context', parameters: {
           target: e.target,
-          template: () => html`<h2>hello context menu</h2>`
+          template: () => html`<h2>hello</h2>`
         }});
       });
 

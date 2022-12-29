@@ -90,10 +90,14 @@ import { media } from '@thepassle/app-tools/utils/media.js'
 media.DARK_MODE(); // true
 
 // Or provide a callback that fires whenever the mediaquery changes
-media.DARK_MODE((matches) => {
+// If you provide a callback, the function returns a cleanup function
+const cleanup = media.DARK_MODE((matches) => {
   console.log(matches); // true
 });
+// Removes the listener
+cleanup();
 
+// If you don't provide a callback, the function just returns the `matches` boolean
 media.MIN.XL();
 media.MAX.LG();
 media.MIN.MD();

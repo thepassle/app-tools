@@ -223,7 +223,7 @@ function context() {
         const { x, y } = await computePosition(
           parameters.target, 
           dialog, 
-          { placement: 'bottom'}
+          { placement: 'bottom-end'}
         );
         Object.assign(dialog.style, {
           marginLeft: `${x}px`,

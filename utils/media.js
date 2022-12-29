@@ -24,17 +24,23 @@ export const media = {
   STANDALONE: createMatch('(display-mode: standalone)'),
   REDUCED_MOTION: createMatch('(prefers-reduced-motion: reduce)'),
   DARK_MODE: createMatch('(prefers-color-scheme: dark)'),
-  LIGHT_MODE: createMatch('(prefers-color-scheme: dark)'),
+  LIGHT_MODE: createMatch('(prefers-color-scheme: light)'),
 };
 
 function createMatch(query) {
   return function match(callback) {
     const mediaQuery = window.matchMedia(query);
+
     if(callback) {
-      mediaQuery.addListener(({matches}) => {
-        callback(matches)
-      }); 
+      function executeCb({matches}) {
+        callback?.(matches);
+      }
+
+      mediaQuery.addListener(executeCb);
       callback(mediaQuery.matches);
+      return () => {
+        mediaQuery.removeListener(executeCb);
+      }
     }
     return mediaQuery.matches;
   }
