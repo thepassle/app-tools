@@ -5,6 +5,7 @@ import {
 } from './events.js';
 import { capabilities } from './capabilities.js';
 import { createLogger } from '../utils/log.js';
+import { media } from '../utils/media.js';
 const log = createLogger('pwa');
 
 let installable, installPrompt;
@@ -29,7 +30,7 @@ class Pwa extends EventTarget {
   /** @type {ServiceWorker | undefined} */
   __waitingServiceWorker;
   /** @type {boolean} */
-  isInstalled = window.matchMedia('(display-mode: standalone)').matches;
+  isInstalled = media.STANDALONE();
 
   /** Triggers the install prompt, when it's available. You can call this method when the `'installable'` event has fired. */
   triggerPrompt = async () => {

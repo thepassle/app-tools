@@ -13,7 +13,7 @@ npm i -S @thepassle/app-tools
 You can enable logs via the `setDebug` function, or by setting a `?app-tools-debug=true` query param in the browser url.
 
 ```js
-import { log, setDebug, getDebug } from '@thepassle/app-tools/utils.js';
+import { log, setDebug, getDebug } from '@thepassle/app-tools/utils/log.js';
 
 // Enable logs to show up in the console
 setDebug(true);
@@ -38,7 +38,7 @@ when(true,
 ### `waitUntil`
 
 ```js
-import { waitUntil } from '@thepassle/app-tools/utils.js';
+import { waitUntil } from '@thepassle/app-tools/utils/async.js';
 
 await waitUntil(() => true, {
   timeout: 1000,
@@ -50,7 +50,7 @@ await waitUntil(() => true, {
 ### `setAbortableTimeout`
 
 ```js
-import { setAbortableTimeout } from '@thepassle/app-tools/utils.js';
+import { setAbortableTimeout } from '@thepassle/app-tools/utils/async.js';
 
 const controller = new AbortController();
 const { signal } = controller;
@@ -67,7 +67,7 @@ controller.abort();
 ### `debounce`
 
 ```js
-import { debounce } from '@thepassle/app-tools/utils.js';
+import { debounce } from '@thepassle/app-tools/utils/async.js';
 
 function foo() {
   console.log(1);
@@ -82,10 +82,33 @@ debouncedFoo();
 // console.log only called once
 ```
 
+### `media`
+
+```js
+import { media } from '@thepassle/app-tools/utils/media.js'
+
+media.DARK_MODE(); // true
+
+// Or provide a callback that fires whenever the mediaquery changes
+media.DARK_MODE((matches) => {
+  console.log(matches); // true
+});
+
+media.MIN.XL();
+media.MAX.LG();
+media.MIN.MD();
+media.MAX.SM();
+media.MIN.XS(); // etc
+
+media.STANDALONE();
+media.REDUCED_MOTION();
+media.LIGHT_MODE();
+```
+
 ### `Service`
 
 ```js
-import { createService } from '@thepassle/app-tools/utils.js';
+import { createService } from '@thepassle/app-tools/utils/Service.js';
 import { html, nothing } from 'lit';
 
 const Service = createService({
