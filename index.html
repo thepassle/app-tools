@@ -180,8 +180,17 @@
             path: '/foo',
             title: 'Foo',
             plugins: [
+              {
+                beforeNavigation: (context) => {
+                  console.log(1, context);
+                  context.data = {foo: 'foo'};
+                }
+              }
             ],
-            render: () => 'foo'
+            render: (params) => {
+              console.log(2, params);
+              return 'foo'
+            }
           },
           {
             path: '/bar/:id',

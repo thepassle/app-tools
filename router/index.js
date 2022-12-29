@@ -95,14 +95,8 @@ export class Router extends EventTarget {
   }
 
   render() {
-    const { params, query, url, title } = this.context;
-    log(`Rendering route ${url.pathname}${url.search}`, { context: this.context, route: this.route });
-    return this.route?.render?.({
-      params,
-      query,
-      url,
-      title
-    });
+    log(`Rendering route ${this.context.url.pathname}${this.context.url.search}`, { context: this.context, route: this.route });
+    return this.route?.render?.(this.context);
   }
 
   /**
