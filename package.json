@@ -1,27 +1,38 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "wtr **/*.test.js --node-resolve",
-    "test:watch": "npm run test -- --watch"
+    "test:watch": "npm run test -- --watch",
+    "lint:types": "tsc",
+    "lint:types:watch": "tsc --watch"
   },
   "exports": {
     "./state.js": "./state.js",
     "./pwa.js": "./pwa.js",
-    "./dialog.js": "./dialog.js",
+    "./dialog.js": {
+      "types": "./dialog/types.d.ts",
+      "default": "./dialog.js"
+    },
     "./pwa/*": "./pwa/*",
-    "./api.js": "./api.js",
-    "./router.js": "./router.js",
+    "./api.js": {
+      "types": "./api/types.d.ts",
+      "default": "./api.js"
+    },
+    "./router.js": {
+      "types": "./router/types.d.ts",
+      "default": "./router.js"
+    },
     "./router/plugins/*": "./router/plugins/*",
     "./api/plugins/*": "./api/plugins/*",
     "./utils.js": "./utils.js",
     "./utils/*": "./utils/*",
     "./env.js": {
-      "development": "./env/env-dev.js",
-      "default": "./env/env-prod.js"
+      "development": "./env/dev.js",
+      "default": "./env/prod.js"
     },
     "./package.json": "./package.json"
   },
@@ -57,6 +68,7 @@
   "devDependencies": {
     "@open-wc/testing": "^3.1.6",
     "@web/test-runner": "^0.13.31",
-    "sinon": "^14.0.0"
+    "sinon": "^14.0.0",
+    "typescript": "^4.9.4"
   }
 }

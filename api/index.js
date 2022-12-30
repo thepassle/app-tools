@@ -9,45 +9,12 @@ function handleStatus(response) {
   return response;
 }
 
-/**
- * @typedef {object} Config
- * @property {Plugin[]} [plugins=[]]
- * @property {'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream'} [responseType=json]
- * @property {string} [baseURL]
- * 
- * @typedef {(url: string, data?: object, opts?: RequestOptions) => Promise<FetchResponse>} BodyMethod
- * @typedef {(url: string, opts?: RequestOptions) => Promise<FetchResponse>} BodylessMethod
- * @typedef {Response & { [key: string]: any }} FetchResponse
- * @typedef {'GET'|'DELETE'|'HEAD'|'OPTIONS'|'POST'|'PUT'|'PATCH'} Method
- *
- * @typedef {{
- *  beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void,
- *  afterFetch?: (res: Response) => Response | Promise<Response>,
- *  transform?: (data: any) => any,
- *  name: string,
- *  handleError?: (e: Error) => boolean
- * }} Plugin
- * 
- * @typedef {Object} CustomRequestOptions
- * @property {(data: FetchResponse) => FetchResponse} [transform] - callback to transform the received data
- * @property {'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream'} [responseType] - responseType of the request, will call res[responseType](). Defaults to 'json'
- * @property {Record<string, string>} [params] - An object to be queryParam-ified and added to the request url
- * @property {Plugin[]} [plugins] - Array of plugins. Plugins can be added on global level, or on a per request basis
- * @property {string} [baseURL] - BaseURL to resolve all requests from. Can be set globally, or on a per request basis. When set on a per request basis, will override the globally set baseURL (if set)
- * 
- * @typedef {RequestInit & CustomRequestOptions} RequestOptions
- * 
- * @typedef {{
- *  responseType: string,
- *  baseURL: string,
- *  url: string,
- *  method: Method,
- *  headers: Headers,
- *  opts?: RequestOptions,
- *  data?: any,
- *  fetchFn: typeof globalThis.fetch
- * }} MetaParams
- */
+/** @typedef {import('./types.js').Config} Config */
+/** @typedef {import('./types.js').Method} Method */
+/** @typedef {import('./types.js').Plugin} Plugin */
+/** @typedef {import('./types.js').CustomRequestOptions} CustomRequestOptions */
+/** @typedef {import('./types.js').RequestOptions} RequestOptions */
+/** @typedef {import('./types.js').MetaParams} MetaParams */
 
 /**
  * @example 
@@ -115,7 +82,17 @@ export class Api {
       }
     }
 
-    log(`Fetching ${method} ${url}`, { responseType, headers: Object.fromEntries(headers), fetchFn, baseURL, url, method, opts, data });
+    log(`Fetching ${method} ${url}`, { 
+      responseType, 
+      // @ts-ignore
+      headers: Object.fromEntries(headers), 
+      fetchFn, 
+      baseURL, 
+      url, 
+      method, 
+      opts, 
+      data 
+    });
     return fetchFn(url, {
       method,
       headers,
@@ -167,19 +144,19 @@ export class Api {
     });
   }
 
-  /** @type {BodylessMethod} */
+  /** @type {import('./types.js').BodylessMethod<object>} */
   get = (url, opts) => this.fetch(url, 'GET', opts);
-  /** @type {BodylessMethod} */
+  /** @type {import('./types.js').BodylessMethod<object>} */
   options = (url, opts) => this.fetch(url, 'OPTIONS', opts);
-  /** @type {BodylessMethod} */
+  /** @type {import('./types.js').BodylessMethod<object>} */
   delete = (url, opts) => this.fetch(url, 'DELETE', opts);
-  /** @type {BodylessMethod} */
+  /** @type {import('./types.js').BodylessMethod<object>} */
   head = (url, opts) => this.fetch(url, 'HEAD', opts);
-  /** @type {BodyMethod} */
+  /** @type {import('./types.js').BodyMethod<object>} */
   post = (url, data, opts) => this.fetch(url, 'POST', opts, data);
-  /** @type {BodyMethod} */
+  /** @type {import('./types.js').BodyMethod<object>} */
   put = (url, data, opts) => this.fetch(url, 'PUT', opts, data);
-  /** @type {BodyMethod} */
+  /** @type {import('./types.js').BodyMethod<object>} */
   patch = (url, data, opts) => this.fetch(url, 'PATCH', opts, data);
 }
 

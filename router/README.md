@@ -212,7 +212,9 @@ import { LitElement } from 'lit';
 
 class MyEl extends LitElement {
   firstUpdated() {
-    router.addEventListener('route-changed', this.requestUpdate.bind(this));
+    router.addEventListener('route-changed', () => {
+      this.requestUpdate();
+    });
   }
 
   render() {
