@@ -1,18 +1,17 @@
-/**
- * @param {Function} f 
- * @returns {<Args>(...args: Args[]) => void}
- */
-export function debounce(f) {
-  let timeoutId;
+export function debounce(f, scheduleTask, cancelTask) {
+  let task;
 
   return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      timeoutId = null;
+    cancelTask(task);
+    task = scheduleTask(() => {
+      task = null;
       f(...args);
     });
   };
 }
+
+export const debounceAtTimeout = (f, ms) => debounce(f, task => setTimeout(task, ms), clearTimeout);
+export const debounceAtFrame = (f) => debounce(f, requestAnimationFrame, cancelAnimationFrame);
 
 /**
  * @returns {Promise<number>}
