@@ -22,7 +22,7 @@ export class State extends EventTarget {
 
   setState(state) {
     log('Before: ', this.#state);
-    this.#state = typeof state === 'function' ? state(this.#state) : state;
+    this.#state = typeof state === 'function' ? state?.(this.#state) : state;
     log('After: ', this.#state);
     this.dispatchEvent(new StateEvent(this.#state));
   }
