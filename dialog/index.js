@@ -6,13 +6,10 @@ import { createLogger } from '../utils/log.js';
 const log = createLogger('dialog');
 
 /**
- * @typedef {HTMLDialogElement & { form: HTMLFormElement }} DialogNode
- * @typedef {Record<string, {
- *  opening?: <Parameters>(opts: {dialog: DialogNode, parameters: Parameters}) => void,
- *  opened?: <Parameters>(opts: {dialog: DialogNode, parameters: Parameters}) => void,
- *  closing?: (opts: {dialog: DialogNode}) => void,
- *  closed?: (opts: {dialog: DialogNode}) => void,
- * }>} Config 
+ * @typedef {import('./types.js').DialogNode} DialogNode
+ * @typedef {import('./types.js').DialogCallbacks} DialogCallbacks
+ * @typedef {import('./types.js').Config} Config
+ * @typedef {import('./types.js').OpenDialogOptions} OpenDialogOptions
  */
 
 setupGlobalDialogStyles();
@@ -118,11 +115,7 @@ export class Dialog extends EventTarget {
   }
 
   /**
-   * 
-   * @param {{
-   *   id: string,
-   *   parameters?: object
-   * }} options 
+   * @param {OpenDialogOptions} options 
    * @returns 
    */
   async open({id, parameters}) {

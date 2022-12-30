@@ -12,31 +12,11 @@ class RouteEvent extends Event {
 }
 
 /**
- * @typedef {{
- *  name: string,
- *  shouldNavigate?: (context: Context) => {
- *   condition: () => boolean | (() => Promise<boolean>),
- *   redirect: string
- *  },
- *  beforeNavigation?: (context: Context) => void,
- *  afterNavigation?: (context: Context) => void,
- * }} Plugin
- * @typedef {{
- *  title?: string,
- *  query: Object,
- *  params: Object,
- *  url: URL,
- *  [key: string]: any
- * }} Context
- * @typedef {{
- *  path: string,
- *  title: string | ((context: Context) => string),
- *  render?: <RenderResult>(context: Context) => RenderResult
- *  plugins?: Plugin[]
- * }} RouteDefinition
- * @typedef {RouteDefinition & {
- *  urlPattern?: any,
- * }} Route
+ * @typedef {import('./types.js').Plugin} Plugin
+ * @typedef {import('./types.js').Context} Context
+ * @typedef {import('./types.js').RouteDefinition} RouteDefinition
+ * @typedef {import('./types.js').Route} Route
+ * @typedef {import('./types.js').Config} Config
  */
 
 export class Router extends EventTarget {
@@ -48,11 +28,7 @@ export class Router extends EventTarget {
   }
 
   /**
-   * @param {{
-   *   fallback?: string,
-   *   plugins?: Plugin[],
-   *   routes: RouteDefinition[]
-   * }} config 
+   * @param {Config} config 
    */
   constructor(config) {
     super();
@@ -62,6 +38,7 @@ export class Router extends EventTarget {
     this.routes = config.routes.map((route) => {
       const r = /** @type {unknown} */ ({
         ...route,
+        // @ts-ignore
         urlPattern: new URLPattern({
           pathname: route.path,
           baseURL: window.location.href,
