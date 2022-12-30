@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -37,6 +37,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "./env.js",
     "./pwa.js",
     "./dialog.js",
     "./dialog/*.js",
