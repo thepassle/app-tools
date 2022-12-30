@@ -6,11 +6,7 @@ export function data(promise){
   return {
     name: 'data',
     beforeNavigation: async (context) => {
-      const data = promise(context).then((data) => {
-        context.data = data;
-        context.dispatch();
-        return data;
-      });
+      const data = promise(context);
       context.data = data;
     }
   }

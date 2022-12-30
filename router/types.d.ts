@@ -19,7 +19,6 @@ export interface Context {
   query: Record<string, string>;
   params: Record<string, string>;
   url: URL;
-  dispatch: () => void;
   [key: string]: any;
 }
 

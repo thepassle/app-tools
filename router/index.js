@@ -25,7 +25,6 @@ export class Router extends EventTarget {
     query: {},
     title: '',
     url: new URL(window.location.href),
-    dispatch: this._notifyUrlChanged.bind(this)
   }
 
   /**
@@ -94,7 +93,6 @@ export class Router extends EventTarget {
           title: typeof title === 'function' ? title({params, query, url}) : title,
           params,
           query,
-          dispatch: this._notifyUrlChanged.bind(this)
         }
         return route;
       }
