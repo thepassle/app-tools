@@ -106,8 +106,7 @@ export class Router extends EventTarget {
   }
 
   _onPopState = () => {
-    this.route = this._matchRoute(new URL(window.location.href));
-    this._notifyUrlChanged();
+    this.navigate(new URL(window.location.href));
   }
 
   _onAnchorClick = (e) => {
