@@ -16,8 +16,8 @@ export interface Plugin {
 
 export interface Context {
   title?: string;
-  query: object;
-  params: object;
+  query: Record<string, string>;
+  params: Record<string, string>;
   url: URL;
   dispatch: () => void;
   [key: string]: any;
