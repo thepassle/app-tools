@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -12,13 +12,13 @@
     "./state.js": "./state.js",
     "./pwa.js": "./pwa.js",
     "./dialog.js": "./dialog.js",
-    "./pwa/*.js": "./pwa/*.js",
+    "./pwa/*": "./pwa/*",
     "./api.js": "./api.js",
     "./router.js": "./router.js",
-    "./router/plugins/*.js": "./router/plugins/*.js",
-    "./api/plugins/*.js": "./api/plugins/*.js",
+    "./router/plugins/*": "./router/plugins/*",
+    "./api/plugins/*": "./api/plugins/*",
     "./utils.js": "./utils.js",
-    "./utils/*.js": "./utils/*.js",
+    "./utils/*": "./utils/*",
     "./env.js": {
       "development": "./env/env-dev.js",
       "default": "./env/env-prod.js"

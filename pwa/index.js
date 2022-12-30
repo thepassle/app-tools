@@ -29,8 +29,7 @@ class Pwa extends EventTarget {
   installPrompt;
   /** @type {ServiceWorker | undefined} */
   __waitingServiceWorker;
-  /** @type {boolean} */
-  isInstalled = media.STANDALONE();
+  isInstalled = /** @type {boolean} */ (media.STANDALONE());
 
   /** Triggers the install prompt, when it's available. You can call this method when the `'installable'` event has fired. */
   triggerPrompt = async () => {
@@ -58,7 +57,7 @@ class Pwa extends EventTarget {
 
   /**
    * @param {string} swPath 
-   * @param {RegistrationOptions} opts 
+   * @param {RegistrationOptions} [opts] 
    * @returns {Promise<ServiceWorkerRegistration> | Promise<void>}
    */
   register(swPath, opts) {
