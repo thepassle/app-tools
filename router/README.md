@@ -256,7 +256,7 @@ const router = new Router({
       path: '/foo',
       title: 'Foo',
       plugins: [
-        lazy(() => import('./foo.js')),
+        lazy(() => import('./my-el.js')),
       ],
       render: () => html`<my-el></my-el>`
     },
@@ -288,7 +288,7 @@ const router = new Router({
 ### `redirect`
 
 ```js
-import { lazy } from '@thepassle/app-tools/router/plugins/lazy.js';
+import { redirect } from '@thepassle/app-tools/router/plugins/redirect.js';
 
 const router = new Router({
   routes: [
