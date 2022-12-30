@@ -193,7 +193,7 @@
               focusableElements[index].focus();
             }
             
-            async function handleResize() {
+            handleResize = debounceAtFrame(async () => {
               if(!media.MAX.XS()) {
                 await compute(parameters.target, dialog);
               } else {
@@ -204,11 +204,10 @@
                   marginTop: 'revert'
                 });
               }
-            }
+            });
             
-            const debouncedHandleResize = debounceAtFrame(handleResize);
             dialog.addEventListener('keydown', onKeyDown);
-            window.addEventListener('resize', debouncedHandleResize);
+            window.addEventListener('resize', handleResize);
           },
           closing: ({dialog}) => {
             index = 0;
