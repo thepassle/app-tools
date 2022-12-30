@@ -278,6 +278,7 @@ const router = new Router({
       plugins: [
         data((context) => api.get(`https://pokeapi.co/api/v2/pokemon/${context.params.id}`)),
       ],
+      // context.data is a promise
       render: (context) => html`<pokemon-card .data=${context.data}></pokemon-card>`
     },
   ]

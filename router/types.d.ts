@@ -19,6 +19,7 @@ export interface Context {
   query: object;
   params: object;
   url: URL;
+  dispatch: () => void;
   [key: string]: any;
 }
 
@@ -26,7 +27,7 @@ export type Render<RenderResult> = (context: Context) => RenderResult;
 
 export interface RouteDefinition {
   path: string;
-  title: string | ((context: Context) => string);
+  title: string | ((context: Partial<Context>) => string);
   render?: Render<RenderResult>;
   plugins?: Plugin[];
 }
