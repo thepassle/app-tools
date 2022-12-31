@@ -209,7 +209,7 @@
             dialog.addEventListener('keydown', onKeyDown);
             window.addEventListener('resize', handleResize);
           },
-          closing: ({dialog}) => {
+          closing: (context) => {
             index = 0;
             window.removeEventListener('resize', handleResize);
           }

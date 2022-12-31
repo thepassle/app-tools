@@ -1,4 +1,4 @@
-import { APP_TOOLS } from '../../utils/CONSTANTS.js';
+import { APP_TOOLS, VERSION } from '../../utils/CONSTANTS.js';
 
 const FOCUS_ELEMENT_ID = 'router-focus';
 const SR_ONLY_STYLE = `position:absolute;top:0;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);clip-path:inset(50%);margin:-1px;`;
@@ -9,10 +9,11 @@ const SR_ONLY_STYLE = `position:absolute;top:0;width:1px;height:1px;overflow:hid
 export const resetFocus = {
   name: 'resetFocus',
   afterNavigation: ({title}) => {
-    let el = /** @type {HTMLElement} */ (document.querySelector(`div[${APP_TOOLS}]#${FOCUS_ELEMENT_ID}`));
+    let el = /** @type {HTMLElement} */ (document.querySelector(`div[${APP_TOOLS}][version="${VERSION}"]#${FOCUS_ELEMENT_ID}`));
     if (!el) {
       el = document.createElement('div');
       el.setAttribute(APP_TOOLS, '');
+      el.setAttribute('version', VERSION);
       el.id = FOCUS_ELEMENT_ID;
       el.setAttribute('tabindex', '-1');
       el.setAttribute('aria-live', 'polite');

@@ -13,10 +13,10 @@ import { Dialog } from '@thepassle/app-tools/dialog.js';
 
 const dialog = new Dialog({
   foo: { 
-    opening: ({dialog, parameters}) => {dialog.querySelector('form').innerHTML = 'hello world';},
-    opened: ({dialog, parameters}) => {},
-    closing: ({dialog}) => {},
-    closed: ({dialog}) => {}
+    opening: (context) => {context.dialog.querySelector('form').innerHTML = 'hello world';},
+    opened: (context) => {},
+    closing: (context) => {},
+    closed: (context) => {}
   },
   bar: someAbstraction({
     title: 'foo', 
@@ -29,20 +29,20 @@ dialog.open({id: 'foo'});
 await dialog.opened;
 dialog.isOpen; // true
 /** Or */
-dialog.opened.then((dialogNode) => {});
+dialog.opened.then((context) => {});
 
 dialog.close();
 await dialog.closed;
 dialog.isOpen; // false
 /** Or */
-dialog.closed.then((dialogNode) => {});
+dialog.closed.then((context) => {});
 
-dialog.addEventListener('opening', ({id, dialog}) => {});
-dialog.addEventListener('opened', ({id, dialog}) => {});
-dialog.addEventListener('closing', ({id, dialog}) => {
+dialog.addEventListener('opening', (context) => {});
+dialog.addEventListener('opened', (context) => {});
+dialog.addEventListener('closing', (context) => {
   console.log(dialog.returnValue);
 });
-dialog.addEventListener('closed', ({id, dialog}) => {
+dialog.addEventListener('closed', (context) => {
   if (id === 'foo') {
     console.log(dialog.returnValue);
   }
@@ -81,12 +81,16 @@ const dialog = new Dialog({
      * Can be used for setup work, like adding `id`s to the dialog, lazy loading, 
      * and rendering to the dialog's DOM
      */
-    opening: ({dialog, parameters}) => {},
+    opening: (context) => {
+      context.dialog; // dialog node
+      context.id; // 'foo';
+      context.parameters; // { bar: 'bar' }
+    },
     
     /** 
      * Executed after animations for the dialog element have run 
      */
-    opened: ({dialog, parameters}) => {},
+    opened: (context) => {},
     
     /** 
      * Executed when the native <dialog>'s `close` event has fired, on "light dismiss", 
@@ -95,16 +99,18 @@ const dialog = new Dialog({
      * 
      * Has access to `dialog.returnValue`
      */
-    closing: ({dialog}) => {},
+    closing: (context) => {},
 
     /** 
      * Executed after the dialog's close animations have run and right before the dialog node is removed from the DOM 
      * 
      * Has access to `dialog.returnValue`
      */
-    closed: ({dialog}) => {}
+    closed: (context) => {}
   },
 });
+
+dialog.open({id: 'foo', parameters: {bar: 'bar'}})
 ```
 
 ## Styling the dialog
@@ -116,7 +122,7 @@ import { Dialog } from '@thepassle/app-tools/dialog.js';
 
 const dialog = new Dialog({
   foo: { 
-    opening: ({dialog, parameters}) => {
+    opening: ({dialog}) => {
       dialog.id = 'foo';
     },
   },
@@ -145,7 +151,7 @@ import { Dialog } from '@thepassle/app-tools/dialog.js';
 
 const dialog = new Dialog({
   foo: { 
-    opening: ({dialog, parameters}) => {
+    opening: ({dialog}) => {
       dialog.id = 'foo';
       dialog.form.innerHTML = 'hello world';
     },
@@ -215,7 +221,7 @@ export const dialog = new Dialog({
 
 function context() {
   return {
-    opening: async ({dialog, parameters}) => {
+    opening: async ({dialog, parameters, id}) => {
       dialog.id = 'context';
       render(parameters.template(), dialog.form);
 

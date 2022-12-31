@@ -1,4 +1,4 @@
-import { APP_TOOLS } from '../utils/CONSTANTS.js';
+import { APP_TOOLS, VERSION } from '../utils/CONSTANTS.js';
 import { setupGlobalDialogStyles } from './utils.js';
 import { DialogStateEvent } from './events.js';
 import { onePaint, animationsComplete } from '../utils/async.js';
@@ -10,6 +10,7 @@ const log = createLogger('dialog');
  * @typedef {import('./types.js').DialogCallbacks} DialogCallbacks
  * @typedef {import('./types.js').Config} Config
  * @typedef {import('./types.js').OpenDialogOptions} OpenDialogOptions
+ * @typedef {import('./types.js').Context} Context
  */
 
 setupGlobalDialogStyles();
@@ -21,6 +22,12 @@ export class Dialog extends EventTarget {
   isOpen = false;
   opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
   closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
+  /** @type {Context} */
+  context = {
+    dialog: undefined,
+    id: '',
+    parameters: {}
+  }
 
   /**
    * 
@@ -37,11 +44,13 @@ export class Dialog extends EventTarget {
   __initDialogNode() {
     const dialogNode = /** @type {DialogNode} */ (document.createElement('dialog'));
     dialogNode.setAttribute(APP_TOOLS, '');
+    dialogNode.setAttribute('version', VERSION);
     dialogNode.addEventListener('close', this.__onDialogClose);
     dialogNode.addEventListener('mousedown', this.__onLightDismiss);
 
     const form = document.createElement('form');
     form.setAttribute(APP_TOOLS, '');
+    form.setAttribute('version', VERSION);
     form.setAttribute('method', 'dialog');
     dialogNode.form = form;
 
@@ -64,20 +73,13 @@ export class Dialog extends EventTarget {
     const id = this.#id;
     const d = /** @type {DialogNode} */ (this.__dialog);
 
-    log(`Closing dialog "${id}"`, { 
-      id, 
-      dialog: d,
-      returnValue: d?.returnValue
-    });
+    log(`Closing dialog "${id}"`, this.context);
 
     d.removeAttribute('opened');
     d.setAttribute('closing', '');
-    this.dispatchEvent(new DialogStateEvent('closing', { 
-      id, 
-      dialog: d, 
-    }));
+    this.dispatchEvent(new DialogStateEvent('closing', this.context));
     try {
-      await this.#config[id]?.closing?.({dialog: d});
+      await this.#config[id]?.closing?.(this.context);
     } catch(e) {
       log(`Dialog "${id}" error on closing hook`);
       throw e;
@@ -89,25 +91,23 @@ export class Dialog extends EventTarget {
     d.setAttribute('closed', '');
     
     // @ts-ignore
-    this.__resolveClosed(d);
+    this.__resolveClosed(this.context);
     
-    this.dispatchEvent(new DialogStateEvent('closed', { 
-      id, 
-      dialog: d 
-    }));
+    this.dispatchEvent(new DialogStateEvent('closed', this.context));
     try {
-      await this.#config[id]?.closed?.({dialog: d});
+      await this.#config[id]?.closed?.(this.context);
     } catch(e) {
       log(`Dialog "${id}" error on closed hook`);
       throw e;
     }
-    log(`Closed dialog "${id}"`, { 
-      id, 
-      dialog: d, 
-      returnValue: d?.returnValue 
-    });
+    log(`Closed dialog "${id}"`, this.context);
 
     d?.remove();
+    this.context = {
+      dialog: undefined,
+      id: '',
+      parameters: {}
+    }
     this.__dialog = undefined;
 
     this.opened = new Promise((resolve) => {this.__resolveOpened = resolve;});
@@ -130,14 +130,19 @@ export class Dialog extends EventTarget {
     }
 
     this.__dialog = this.__initDialogNode();
+    this.context = {
+      dialog: this.__dialog,
+      id,
+      parameters,
+    }
     document.body.appendChild(this.__dialog);
 
-    log(`Openening dialog "${id}"`, { id, parameters, dialog: this.__dialog });
+    log(`Openening dialog "${id}"`, this.context);
     this.__dialog.setAttribute('opening', '');
-    this.dispatchEvent(new DialogStateEvent('opening', { id, dialog: this.__dialog }));
+    this.dispatchEvent(new DialogStateEvent('opening', this.context));
 
     try {
-      await this.#config?.[id]?.opening?.({dialog: this.__dialog, parameters});
+      await this.#config?.[id]?.opening?.(this.context);
     } catch(e) {
       log(`Dialog "${this.#id}" error on opening hook`);
       throw e;
@@ -152,15 +157,15 @@ export class Dialog extends EventTarget {
     this.__dialog.removeAttribute('opening');
     this.__dialog.setAttribute('opened', '');
     // @ts-ignore
-    this.__resolveOpened(this.__dialog);
-    this.dispatchEvent(new DialogStateEvent('opened', { id, dialog: this.__dialog }));
+    this.__resolveOpened(this.context);
+    this.dispatchEvent(new DialogStateEvent('opened', this.context));
     try {
-      await this.#config?.[id]?.opened?.({dialog: this.__dialog, parameters});
+      await this.#config?.[id]?.opened?.(this.context);
     } catch(e) {
       log(`Dialog "${this.#id}" error on opened hook`);
       throw e;
     }
-    log(`Opened dialog "${id}"`, { id, parameters, dialog: this.__dialog });
+    log(`Opened dialog "${id}"`, this.context);
     this.closed = new Promise((resolve) => {this.__resolveClosed = resolve;});
   }
 
