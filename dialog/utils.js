@@ -14,6 +14,11 @@ export function setupGlobalDialogStyles() {
         overflow: hidden;
       }
 
+      dialog[${APP_TOOLS}][version="${VERSION}"]:modal {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
       dialog[${APP_TOOLS}][version="${VERSION}"] {
         pointer-events: none;
         inset: 0;

@@ -136,7 +136,7 @@ export class Dialog extends EventTarget {
       parameters,
     }
     document.body.appendChild(this.__dialog);
-
+    
     log(`Openening dialog "${id}"`, this.context);
     this.__dialog.setAttribute('opening', '');
     this.dispatchEvent(new DialogStateEvent('opening', this.context));
