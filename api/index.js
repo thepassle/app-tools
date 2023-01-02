@@ -39,11 +39,6 @@ export class Api {
     };
   }
 
-  /** @param {Plugin} plugin */
-  addPlugin(plugin) {
-    this.config.plugins.push(plugin);
-  }
-
   /**
    * @param {string} url 
    * @param {Method} method 

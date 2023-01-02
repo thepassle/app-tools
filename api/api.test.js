@@ -45,13 +45,6 @@ describe('Api', () => {
         responseType: 'text'
       });
     });
-
-    it('addPlugin', () => {
-      api.addPlugin({});
-      expect(api.config.plugins.length).to.equal(1);
-      api.addPlugin({});
-      expect(api.config.plugins.length).to.equal(2);
-    });
   });
 
   describe('plugins', () => {
@@ -209,6 +202,7 @@ describe('Api', () => {
           plugins: [
             mock(response()),
             {
+              name: 'mock',
               afterFetch: (res) => {
                 expect(res.status).to.equal(222);
                 expect(res.statusText).to.equal('foo');
@@ -227,6 +221,7 @@ describe('Api', () => {
           plugins: [
             mock(response()),
             {
+              name: 'mock',
               afterFetch: (res) => {
                 expect(res.status).to.equal(222);
                 expect(res.statusText).to.equal('foo');
