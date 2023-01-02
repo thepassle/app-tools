@@ -15,7 +15,7 @@ export interface OpenDialogOptions {
 }
 
 export interface Context {
-  dialog: DialogNode,
+  dialog: DialogNode | undefined,
   id: string,
   parameters: Record<string, any>
 }

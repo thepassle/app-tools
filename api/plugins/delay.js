@@ -4,7 +4,7 @@
  */
 export const delayPlugin = (ms) => ({ 
   name: 'delay',
-  afterFetch: () => new Promise(r => setTimeout(r,ms))
+  afterFetch: () => {new Promise(r => setTimeout(r,ms))}
 });
 
 export const delay = delayPlugin(1000);

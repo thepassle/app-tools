@@ -111,7 +111,10 @@ export class Api {
     .then(async res => {
       for(const plugin of plugins) {
         try {
-          res = await plugin?.afterFetch?.(res) ?? res;
+          const afterFetchResult = await plugin?.afterFetch?.(res) ?? res;
+          if(afterFetchResult) {
+            res = afterFetchResult;
+          }
         } catch(e) {
           log(`Plugin "${plugin.name}" error on afterFetch hook`)
           throw e;

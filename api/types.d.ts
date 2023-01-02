@@ -13,7 +13,7 @@ export type Method = 'GET'|'DELETE'|'HEAD'|'OPTIONS'|'POST'|'PUT'|'PATCH';
 
 export interface Plugin {
   beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void;
-  afterFetch?: (res: Response) => Response | Promise<Response>;
+  afterFetch?: (res: Response) => void | Promise<void> | Response | Promise<Response>;
   transform?: (data: any) => any;
   name: string;
   handleError?: (e: Error) => boolean;
