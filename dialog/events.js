@@ -1,14 +1,10 @@
 export class DialogStateEvent extends Event {
   /** 
    * @param {'opening' | 'opened' | 'closing' | 'closed'} kind
-   * @param {{
-   *  id: string,
-   *  dialog: import('./index.js').DialogNode,
-   * }} opts 
+   * @param {import('./types.js').Context} context
    */
-  constructor(kind, {id, dialog}) {
+  constructor(kind, context) {
     super(kind);
-    this.dialog = dialog;
-    this.id = id;
+    this.context = context;
   }
 }

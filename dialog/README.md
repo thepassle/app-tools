@@ -37,12 +37,14 @@ dialog.isOpen; // false
 /** Or */
 dialog.closed.then((context) => {});
 
-dialog.addEventListener('opening', (context) => {});
-dialog.addEventListener('opened', (context) => {});
-dialog.addEventListener('closing', (context) => {
+dialog.addEventListener('opening', ({context}) => {});
+dialog.addEventListener('opened', ({context}) => {});
+dialog.addEventListener('closing', ({context}) => {
   console.log(dialog.returnValue);
 });
-dialog.addEventListener('closed', (context) => {
+dialog.addEventListener('closed', ({context}) => {
+  const { id, dialog } = context;
+  
   if (id === 'foo') {
     console.log(dialog.returnValue);
   }
