@@ -1,8 +1,7 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "wtr **/*.test.js --node-resolve",
