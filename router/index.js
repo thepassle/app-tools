@@ -142,6 +142,13 @@ export class Router extends EventTarget {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
     }    
+    
+    // If this a route outside our domain, just navigate away.
+    if (url.host !== window.location.host) {
+      window.location.href = url;
+      return;
+    }
+    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
     log(`Navigating to ${url.pathname}${url.search}`, { context: this.context, route: this.route });
 
