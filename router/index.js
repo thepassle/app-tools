@@ -126,9 +126,7 @@ export class Router extends EventTarget {
     const url = new URL(a.href);
 
     if (this.url.href === url.href) return;
-    
     if (url.host !== window.location.host) return;
-    
     if (a.hasAttribute('download') || a.href.includes('mailto:')) return;
 
     const target = a.getAttribute('target');
