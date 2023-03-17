@@ -126,6 +126,9 @@ export class Router extends EventTarget {
     const url = new URL(a.href);
 
     if (this.url.href === url.href) return;
+    
+    if (url.host !== window.location.host) return;
+    
     if (a.hasAttribute('download') || a.href.includes('mailto:')) return;
 
     const target = a.getAttribute('target');
@@ -141,12 +144,6 @@ export class Router extends EventTarget {
   async navigate(url) {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
-    }    
-    
-    // If this is a route outside our domain, just navigate away.
-    if (url.host !== window.location.host) {
-      window.location.href = url;
-      return;
     }
     
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
