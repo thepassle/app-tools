@@ -143,7 +143,7 @@ export class Router extends EventTarget {
       url = new URL(url, this.baseUrl);
     }    
     
-    // If this a route outside our domain, just navigate away.
+    // If this is a route outside our domain, just navigate away.
     if (url.host !== window.location.host) {
       window.location.href = url;
       return;
