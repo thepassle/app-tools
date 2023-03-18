@@ -126,6 +126,7 @@ export class Router extends EventTarget {
     const url = new URL(a.href);
 
     if (this.url.href === url.href) return;
+    if (url.host !== window.location.host) return;
     if (a.hasAttribute('download') || a.href.includes('mailto:')) return;
 
     const target = a.getAttribute('target');
@@ -141,7 +142,8 @@ export class Router extends EventTarget {
   async navigate(url) {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
-    }    
+    }
+    
     this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
     log(`Navigating to ${url.pathname}${url.search}`, { context: this.context, route: this.route });
 
