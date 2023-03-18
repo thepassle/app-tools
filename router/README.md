@@ -13,7 +13,6 @@ npm i -S @thepassle/app-tools
 ```js
 import { Router } from '@thepassle/app-tools/router.js';
 import { lazy } from '@thepassle/app-tools/router/plugins/lazy.js';
-import { title } from '@thepassle/app-tools/router/plugins/title.js';
 import { offline } from '@thepassle/app-tools/router/plugins/offline.js';
 import { resetFocus } from '@thepassle/app-tools/router/plugins/resetFocus.js';
 import { scrollToTop } from '@thepassle/app-tools/router/plugins/scrollToTop.js';
