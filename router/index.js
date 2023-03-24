@@ -106,7 +106,7 @@ export class Router extends EventTarget {
   }
 
   _onPopState = () => {
-    this.navigate(new URL(window.location.href));
+    this.navigate(new URL(window.location.href), true);
   }
 
   _onAnchorClick = (e) => {
@@ -139,7 +139,7 @@ export class Router extends EventTarget {
   /**
    * @param {string | URL} url 
    */
-  async navigate(url) {
+  async navigate(url, isBackNav) {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
     }
@@ -183,7 +183,9 @@ export class Router extends EventTarget {
       }
     }
 
-    window.history.pushState(null, '', `${url.pathname}${url.search}`);
+    if (!isBackNav) {
+      window.history.pushState(null, '', `${url.pathname}${url.search}`);
+    }
     document.title = this.context.title;
     this._notifyUrlChanged();
 
