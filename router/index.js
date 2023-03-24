@@ -137,7 +137,8 @@ export class Router extends EventTarget {
   }
 
   /**
-   * @param {string | URL} url 
+   * @param {string | URL} url The URL to navigate to.
+   * @param {boolean | null | undefined} isBackNav Whether the navigation is a backward navigation (e.g. clicking the browser back button.) Backward navigations won't push a new URL into the browser history.
    */
   async navigate(url, isBackNav) {
     if (typeof url === 'string') {
