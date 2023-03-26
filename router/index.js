@@ -140,7 +140,7 @@ export class Router extends EventTarget {
    * @param {string | URL} url The URL to navigate to.
    * @param {@param {{
    *    backNav?: boolean
-   *  }} options} options Whether the navigation is a backward navigation (e.g. clicking the browser back button.) Backward navigations won't push a new URL into the browser history.
+   *  }} options} options An options object to configure the navigation. The backNav property specifies whether the navigation is a backward navigation, which doesn't push the navigation into browser nav history.
    */
   async navigate(url, options = {}) {
     if (typeof url === 'string') {
@@ -186,7 +186,7 @@ export class Router extends EventTarget {
       }
     }
 
-    if (!options?.backNav) {
+    if (!options.backNav) {
       window.history.pushState(null, '', `${url.pathname}${url.search}`);
     }
     document.title = this.context.title;
