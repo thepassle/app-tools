@@ -140,9 +140,9 @@ export class Router extends EventTarget {
    * @param {string | URL} url The URL to navigate to.
    * @param {@param {{
    *    backNav?: boolean
-   *  } | null | undefined } options} options Whether the navigation is a backward navigation (e.g. clicking the browser back button.) Backward navigations won't push a new URL into the browser history.
+   *  }} options} options Whether the navigation is a backward navigation (e.g. clicking the browser back button.) Backward navigations won't push a new URL into the browser history.
    */
-  async navigate(url, options) {
+  async navigate(url, options = {}) {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
     }
