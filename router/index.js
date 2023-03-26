@@ -106,7 +106,7 @@ export class Router extends EventTarget {
   }
 
   _onPopState = () => {
-    this.navigate(new URL(window.location.href), true);
+    this.navigate(new URL(window.location.href), { backNav: true });
   }
 
   _onAnchorClick = (e) => {
@@ -138,9 +138,11 @@ export class Router extends EventTarget {
 
   /**
    * @param {string | URL} url The URL to navigate to.
-   * @param {boolean | null | undefined} isBackNav Whether the navigation is a backward navigation (e.g. clicking the browser back button.) Backward navigations won't push a new URL into the browser history.
+   * @param {@param {{
+   *    backNav?: boolean
+   *  } | null | undefined } options} options Whether the navigation is a backward navigation (e.g. clicking the browser back button.) Backward navigations won't push a new URL into the browser history.
    */
-  async navigate(url, isBackNav) {
+  async navigate(url, options) {
     if (typeof url === 'string') {
       url = new URL(url, this.baseUrl);
     }
@@ -184,7 +186,7 @@ export class Router extends EventTarget {
       }
     }
 
-    if (!isBackNav) {
+    if (!options?.backNav) {
       window.history.pushState(null, '', `${url.pathname}${url.search}`);
     }
     document.title = this.context.title;
