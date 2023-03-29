@@ -1,10 +1,17 @@
 import { createLogger } from '../utils/log.js';
 const log = createLogger('api');
 
+class StatusError extends Error {
+  constructor(response) {
+    super(response.statusText);
+    this.response = response;
+  }
+}
+
 function handleStatus(response) {
   if (!response.ok) {
-    log('Response not ok', response.statusText);
-    throw new Error(response.statusText);
+    log('Response not ok', response);
+    throw new StatusError(response);
   }
   return response;
 }
@@ -137,7 +144,7 @@ export class Api {
     /** [PLUGINS - HANDLEERROR] */
     .catch(async e => {
       log(`Fetch failed ${method} ${url}`, e);
-      const shouldThrow = (await Promise.all(plugins.map(({handleError}) => handleError?.(e) ?? false))).some(_ => !!_);
+      const shouldThrow = plugins.length === 0 || (await Promise.all(plugins.map(({ handleError }) => handleError?.(e) ?? true))).every(_ => !!_);
       if(shouldThrow) throw e;
     });
   }

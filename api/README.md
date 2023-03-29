@@ -32,7 +32,19 @@ const api = new Api({
 
 const user = await api.get('/users/1');
 await api.post('/form/submit', { name: 'John Doe', email: 'johndoe@internet.com' });
+
+try {
+  await api.get('/foo');
+} catch(e) {
+  console.log(e); // StatusError
+  e.message; // the `statusText` of the `response`
+  e.response; // access the `response`
+}
 ```
+
+### Error Handling
+
+By default `api` will throw an error if a response is not ok (`!response.ok`). If this is the case, it will throw a `StatusError`. The `StatusError` is thrown with the `response.statusText` as message, and also has the actual `response` available on it: `e.response`.
 
 ## Composable
 

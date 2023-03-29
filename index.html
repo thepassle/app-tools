@@ -100,6 +100,7 @@
       import { Router } from './router.js';
       import { media } from './utils/media.js';
       import { debounceAtFrame } from './utils/async.js';
+      import { mock } from './api/plugins/mock.js';
 
       
       export const dialog = new Dialog({
@@ -300,9 +301,11 @@
 
       btn2.addEventListener('click', async () => {
         try {
-          await api.get('https://poasdfasdfkeapi.co/api/v2/pokemon/1');
+          await api.get('https://poasdfasdfkeapi.co/api/v2/pokemon/1', { plugins: [mock(() => new Response('', {status: 400, bar:'asd', statusText: 'foo'}))] });
         } catch(e) {
-          console.log(e);
+          // @TODO 1 Error: [object Response] can I access the object?
+          console.log(1, e.message);
+          console.log(1, e.response);
         }
       })
     </script>
