@@ -88,6 +88,9 @@ router.context.url;
 router.context.params;
 router.context.query;
 router.context.title;
+
+// Cleans up global event listeners
+router.uninstall();
 ```
 
 ## Polyfill

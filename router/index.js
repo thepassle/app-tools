@@ -57,6 +57,11 @@ export class Router extends EventTarget {
     window.addEventListener('click', this._onAnchorClick);
   }
 
+  uninstall() {
+    window.removeEventListener('popstate', this._onPopState);
+    window.removeEventListener('click', this._onAnchorClick);
+  }
+
   get url() {
     return new URL(window.location.href);
   }
