@@ -77,12 +77,17 @@ export class Router extends EventTarget {
     return new URL('./', document.baseURI);
   }
 
+  /**
+   * @template RenderResult
+   * @returns {RenderResult}
+   */
   render() {
     log(`Rendering route ${this.context.url.pathname}${this.context.url.search}`, { context: this.context, route: this.route });
     return this.route?.render?.(this.context);
   }
 
   /**
+   * @private
    * @param {URL} url 
    * @returns {Route | null}
    */
@@ -106,14 +111,23 @@ export class Router extends EventTarget {
     return null;
   }
   
+  /**
+   * @private
+   */
   _notifyUrlChanged() {
     this.dispatchEvent(new RouteEvent(this.context));
   }
 
+  /**
+   * @private
+   */
   _onPopState = () => {
     this.navigate(new URL(window.location.href), { backNav: true });
   }
 
+  /**
+   * @private
+   */
   _onAnchorClick = (e) => {
     if (
       e.defaultPrevented ||

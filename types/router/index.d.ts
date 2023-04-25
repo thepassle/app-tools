@@ -23,15 +23,29 @@ export class Router extends EventTarget {
     get url(): URL;
     get fallback(): URL;
     get baseUrl(): URL;
-    render(): RenderResult;
     /**
+     * @template RenderResult
+     * @returns {RenderResult}
+     */
+    render<RenderResult>(): RenderResult;
+    /**
+     * @private
      * @param {URL} url
      * @returns {Route | null}
      */
-    _matchRoute(url: URL): Route | null;
-    _notifyUrlChanged(): void;
-    _onPopState: () => void;
-    _onAnchorClick: (e: any) => void;
+    private _matchRoute;
+    /**
+     * @private
+     */
+    private _notifyUrlChanged;
+    /**
+     * @private
+     */
+    private _onPopState;
+    /**
+     * @private
+     */
+    private _onAnchorClick;
     /**
      * @param {string | URL} url The URL to navigate to.
      * @param {{
