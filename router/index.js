@@ -143,9 +143,9 @@ export class Router extends EventTarget {
 
   /**
    * @param {string | URL} url The URL to navigate to.
-   * @param {@param {{
+   * @param {{
    *    backNav?: boolean
-   *  }} options} options An options object to configure the navigation. The backNav property specifies whether the navigation is a backward navigation, which doesn't push the navigation into browser nav history.
+   *  }} options options An options object to configure the navigation. The backNav property specifies whether the navigation is a backward navigation, which doesn't push the navigation into browser nav history.
    */
   async navigate(url, options = {}) {
     if (typeof url === 'string') {
