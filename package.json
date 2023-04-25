@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "",
   "type": "module",
   "scripts": {
@@ -10,25 +10,46 @@
     "lint:types:watch": "tsc --watch"
   },
   "exports": {
-    "./state.js": "./state.js",
-    "./pwa.js": "./pwa.js",
-    "./dialog.js": {
-      "types": "./dialog/types.d.ts",
+    "./state.js": { 
+      "types": "./types/state/index.d.ts",
+      "default": "./state.js"
+    },
+    "./pwa.js": { 
+      "types": "./types/pwa/index.d.ts",
+      "default": "./pwa.js"
+    },
+    "./dialog.js": { 
+      "types": "./types/dialog/index.d.ts",
       "default": "./dialog.js"
     },
-    "./pwa/*": "./pwa/*",
-    "./api.js": {
-      "types": "./api/types.d.ts",
+    "./pwa/*": { 
+      "types": "./types/pwa/*",
+      "default": "./pwa/*"
+    },
+    "./api.js": { 
+      "types": "./types/api/index.d.ts",
       "default": "./api.js"
     },
-    "./router.js": {
-      "types": "./router/types.d.ts",
+    "./router.js": { 
+      "types": "./types/router/index.d.ts",
       "default": "./router.js"
     },
-    "./router/plugins/*": "./router/plugins/*",
-    "./api/plugins/*": "./api/plugins/*",
-    "./utils.js": "./utils.js",
-    "./utils/*": "./utils/*",
+    "./router/plugins/*": { 
+      "types": "./types/router/index/*",
+      "default": "./router/plugins/*"
+    },
+    "./api/plugins/*": { 
+      "types": "./types/api/plugins/*",
+      "default": "./api/plugins/*"
+    },
+    "./utils.js": { 
+      "types": "./types/utils/index.d.ts",
+      "default": "./utils.js"
+    },
+    "./utils/*": { 
+      "types": "./types/utils/*",
+      "default": "./utils/*"
+    },
     "./env.js": {
       "development": "./env/dev.js",
       "default": "./env/prod.js"
@@ -36,7 +57,7 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "**/*.d.ts",
+    "./types/**/*.d.ts",
     "./env.js",
     "./pwa.js",
     "./dialog.js",
