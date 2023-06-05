@@ -2,7 +2,7 @@ const KEY = Symbol.for('app-tools::log::1.x');
 
 globalThis[KEY] = { 
   setDebug, 
-  debug: new URL(window.location.href).searchParams.has('app-tools-debug')
+  debug: 'window' in globalThis ? new URL(window.location.href).searchParams.has('app-tools-debug') : false,
 };
 
 /**
