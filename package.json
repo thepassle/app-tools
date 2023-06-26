@@ -51,6 +51,7 @@
       "default": "./utils/*"
     },
     "./env.js": {
+      "types": "./types/env/dev.js",
       "development": "./env/dev.js",
       "default": "./env/prod.js"
     },
