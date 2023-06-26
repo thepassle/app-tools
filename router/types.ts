@@ -24,7 +24,7 @@ export interface Context {
 
 export type Render<RenderResult> = (context: Context) => RenderResult;
 
-export interface RouteDefinition {
+export interface RouteDefinition<RenderResult = unknown> {
   path: string;
   title: string | ((context: Partial<Context>) => string);
   render?: Render<RenderResult>;

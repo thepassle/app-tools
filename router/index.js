@@ -79,11 +79,10 @@ export class Router extends EventTarget {
 
   /**
    * @template RenderResult
-   * @returns {RenderResult}
    */
   render() {
     log(`Rendering route ${this.context.url.pathname}${this.context.url.search}`, { context: this.context, route: this.route });
-    return this.route?.render?.(this.context);
+    return /** @type {RenderResult} */ (this.route?.render?.(this.context));
   }
 
   /**

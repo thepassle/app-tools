@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "",
   "type": "module",
   "scripts": {
@@ -51,6 +51,7 @@
       "default": "./utils/*"
     },
     "./env.js": {
+      "types": "./types/env/dev.js",
       "development": "./env/dev.js",
       "default": "./env/prod.js"
     },

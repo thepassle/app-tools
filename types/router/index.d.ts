@@ -25,7 +25,6 @@ export class Router extends EventTarget {
     get baseUrl(): URL;
     /**
      * @template RenderResult
-     * @returns {RenderResult}
      */
     render<RenderResult>(): RenderResult;
     /**
