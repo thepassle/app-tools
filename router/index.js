@@ -81,7 +81,7 @@ export class Router extends EventTarget {
    * @template RenderResult
    */
   render() {
-    log(`Rendering route ${this.context.url.pathname}${this.context.url.search}`, { context: this.context, route: this.route });
+    log(`Rendering route ${this.context.url.pathname}${this.context.url.search}${this.context.url.hash}`, { context: this.context, route: this.route });
     return /** @type {RenderResult} */ (this.route?.render?.(this.context));
   }
 
@@ -106,7 +106,7 @@ export class Router extends EventTarget {
         return route;
       }
     }
-    log(`No route matched for ${url.pathname}${url.search}`, url);
+    log(`No route matched for ${url.pathname}${url.search}${url.hash}`, url);
     return null;
   }
   
@@ -154,6 +154,13 @@ export class Router extends EventTarget {
     this.navigate(url);
   }
 
+  _collectPlugins(route) {
+    return [
+      ...(this.config?.plugins ?? []), 
+      ...(route?.plugins ?? []),
+    ]
+  }
+
   /**
    * @param {string | URL} url The URL to navigate to.
    * @param {{
@@ -165,14 +172,11 @@ export class Router extends EventTarget {
       url = new URL(url, this.baseUrl);
     }
     
-    this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
-    log(`Navigating to ${url.pathname}${url.search}`, { context: this.context, route: this.route });
+    let route = this._matchRoute(url) || this._matchRoute(this.fallback);
+    log(`Navigating to ${url.pathname}${url.search}${url.hash}`, { context: this.context, route: this.route });
 
     /** @type {Plugin[]} */
-    const plugins = [
-      ...(this.config?.plugins ?? []), 
-      ...(this.route?.plugins ?? []), 
-    ];
+    let plugins = this._collectPlugins(route);
 
     for (const plugin of plugins) {
       try {
@@ -181,7 +185,8 @@ export class Router extends EventTarget {
           const condition = await result.condition();
           if (!condition) {
             url = new URL(result.redirect, this.baseUrl);
-            this.route = this._matchRoute(url) || this._matchRoute(this.fallback);
+            route = this._matchRoute(url) || this._matchRoute(this.fallback);
+            plugins = this._collectPlugins(route);
             log('Redirecting', { context: this.context, route: this.route });
           }
         }
@@ -190,6 +195,8 @@ export class Router extends EventTarget {
         throw e;
       }
     }
+
+    this.route = route;
 
     if (!this.route) {
       throw new Error(`[ROUTER] No route or fallback matched for url ${url}`);
@@ -205,7 +212,7 @@ export class Router extends EventTarget {
     }
 
     if (!options.backNav) {
-      window.history.pushState(null, '', `${url.pathname}${url.search}`);
+      window.history.pushState(null, '', `${url.pathname}${url.search}${url.hash}`);
     }
     document.title = this.context.title;
     this._notifyUrlChanged();
