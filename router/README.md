@@ -213,14 +213,18 @@ App:
 import { LitElement } from 'lit';
 
 class MyEl extends LitElement {
+  static properties = {
+    route: {}
+  }
+
   firstUpdated() {
     router.addEventListener('route-changed', () => {
-      this.requestUpdate();
+      this.route = router.render();
     });
   }
 
   render() {
-    return router.render();
+    return this.route;
   }
 }
 ```
