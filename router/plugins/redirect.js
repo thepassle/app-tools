@@ -1,13 +1,13 @@
 /**
- * @param {string} path 
+ * @param {string|((context:(import('../index.js').Context) => string)} path
  * @returns {import('../index.js').Plugin}
  */
 export function redirect(path) {
   return {
     name: 'redirect',
-    shouldNavigate: () => ({
+    shouldNavigate: (context) => ({
       condition: () => false,
-      redirect: path
+      redirect: typeof path === 'function' ? path(context) : path
     })
   }
 }
