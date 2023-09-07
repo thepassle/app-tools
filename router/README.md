@@ -305,6 +305,13 @@ const router = new Router({
         redirect('/404'),
       ],
     },
+    {
+      path: '/legacy/detail/:product',
+      title: 'Foo',
+      plugins: [
+        redirect(context => '/detail/${context.params.product}'),
+      ],
+    },
   ]
 });
 ```
