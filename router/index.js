@@ -154,6 +154,9 @@ export class Router extends EventTarget {
     this.navigate(url);
   }
 
+  /**
+   * @private 
+   */
   _collectPlugins(route) {
     return [
       ...(this.config?.plugins ?? []), 

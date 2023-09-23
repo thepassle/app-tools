@@ -33,20 +33,20 @@ export class Api {
      * @returns
      */
     fetch(url: string, method: Method, opts?: RequestOptions, data?: object): Promise<any>;
-    /** @type {import('./types.js').BodylessMethod<object>} */
-    get: import('./types.js').BodylessMethod<object>;
-    /** @type {import('./types.js').BodylessMethod<object>} */
-    options: import('./types.js').BodylessMethod<object>;
-    /** @type {import('./types.js').BodylessMethod<object>} */
-    delete: import('./types.js').BodylessMethod<object>;
-    /** @type {import('./types.js').BodylessMethod<object>} */
-    head: import('./types.js').BodylessMethod<object>;
-    /** @type {import('./types.js').BodyMethod<object>} */
-    post: import('./types.js').BodyMethod<object>;
-    /** @type {import('./types.js').BodyMethod<object>} */
-    put: import('./types.js').BodyMethod<object>;
-    /** @type {import('./types.js').BodyMethod<object>} */
-    patch: import('./types.js').BodyMethod<object>;
+    /** @type {import('./types.js').BodylessMethod} */
+    get: import('./types.js').BodylessMethod;
+    /** @type {import('./types.js').BodylessMethod} */
+    options: import('./types.js').BodylessMethod;
+    /** @type {import('./types.js').BodylessMethod} */
+    delete: import('./types.js').BodylessMethod;
+    /** @type {import('./types.js').BodylessMethod} */
+    head: import('./types.js').BodylessMethod;
+    /** @type {import('./types.js').BodyMethod} */
+    post: import('./types.js').BodyMethod;
+    /** @type {import('./types.js').BodyMethod} */
+    put: import('./types.js').BodyMethod;
+    /** @type {import('./types.js').BodyMethod} */
+    patch: import('./types.js').BodyMethod;
 }
 export const api: Api;
 export type Config = import('./types.js').Config;

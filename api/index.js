@@ -149,19 +149,19 @@ export class Api {
     });
   }
 
-  /** @type {import('./types.js').BodylessMethod<object>} */
+  /** @type {import('./types.js').BodylessMethod} */
   get = (url, opts) => this.fetch(url, 'GET', opts);
-  /** @type {import('./types.js').BodylessMethod<object>} */
+  /** @type {import('./types.js').BodylessMethod} */
   options = (url, opts) => this.fetch(url, 'OPTIONS', opts);
-  /** @type {import('./types.js').BodylessMethod<object>} */
+  /** @type {import('./types.js').BodylessMethod} */
   delete = (url, opts) => this.fetch(url, 'DELETE', opts);
-  /** @type {import('./types.js').BodylessMethod<object>} */
+  /** @type {import('./types.js').BodylessMethod} */
   head = (url, opts) => this.fetch(url, 'HEAD', opts);
-  /** @type {import('./types.js').BodyMethod<object>} */
+  /** @type {import('./types.js').BodyMethod} */
   post = (url, data, opts) => this.fetch(url, 'POST', opts, data);
-  /** @type {import('./types.js').BodyMethod<object>} */
+  /** @type {import('./types.js').BodyMethod} */
   put = (url, data, opts) => this.fetch(url, 'PUT', opts, data);
-  /** @type {import('./types.js').BodyMethod<object>} */
+  /** @type {import('./types.js').BodyMethod} */
   patch = (url, data, opts) => this.fetch(url, 'PATCH', opts, data);
 }
 

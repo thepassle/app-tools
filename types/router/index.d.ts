@@ -46,6 +46,10 @@ export class Router extends EventTarget {
      */
     private _onAnchorClick;
     /**
+     * @private
+     */
+    private _collectPlugins;
+    /**
      * @param {string | URL} url The URL to navigate to.
      * @param {{
      *    backNav?: boolean
