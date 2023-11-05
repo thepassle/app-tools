@@ -2,7 +2,7 @@ import { setAbortableTimeout } from '../../utils/async.js';
 
 /**
  * @param {Response | (() => Response) | (() => Promise<Response>)} response
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function mock(response) {
   return {

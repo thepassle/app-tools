@@ -1,6 +1,6 @@
 /**
  * @param {string} jsonPrefix
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function jsonPrefixPlugin(jsonPrefix) {
   let responseType;

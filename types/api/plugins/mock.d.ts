@@ -1,5 +1,5 @@
 /**
  * @param {Response | (() => Response) | (() => Promise<Response>)} response
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
-export function mock(response: Response | (() => Response) | (() => Promise<Response>)): import('../index').Plugin;
+export function mock(response: Response | (() => Response) | (() => Promise<Response>)): import('../index.js').Plugin;

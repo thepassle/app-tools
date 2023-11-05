@@ -8,7 +8,7 @@ function getCookie(name, _document = document) {
  *  xsrfCookieName?: string,
  *  xsrfHeaderName?: string,
  * }} options 
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function xsrfPlugin({
   xsrfCookieName = 'XSRF-TOKEN',

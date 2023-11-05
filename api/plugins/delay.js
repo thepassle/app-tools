@@ -1,6 +1,6 @@
 /** 
  * @param {number} ms 
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export const delayPlugin = (ms) => ({ 
   name: 'delay',

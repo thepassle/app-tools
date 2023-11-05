@@ -2,6 +2,10 @@
 
 This project follows **Semantic Versioning** (SemVer). [Visit the SemVer website](http://semver.org/) to learn more about it.
 
+## 0.9.10 (2023-10-05)
+
+- **[all]** Fix types for usage with both `moduleResolution` `bundler` and `node16`
+
 ## 0.9.9 (2023-09-23)
 
 - **[api]** Fix types for methods

@@ -1,5 +1,5 @@
 /**
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function abortPlugin() {
   let requestId;

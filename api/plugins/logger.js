@@ -2,7 +2,7 @@
  * @param {{
  *  collapsed?: boolean
  * }} options
- * @returns {import('../index').Plugin} 
+ * @returns {import('../index.js').Plugin} 
  */
 export function loggerPlugin({collapsed = true} = {}) {
   let m;

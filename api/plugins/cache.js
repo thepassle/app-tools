@@ -2,7 +2,7 @@ const TEN_MINUTES = 1000 * 60 * 10;
 
 /**
  * @param {{maxAge?: number}} options
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function cachePlugin({maxAge = TEN_MINUTES} = {}) {
   let requestId;

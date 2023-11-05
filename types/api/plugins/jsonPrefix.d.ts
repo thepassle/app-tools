@@ -1,6 +1,6 @@
 /**
  * @param {string} jsonPrefix
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
-export function jsonPrefixPlugin(jsonPrefix: string): import('../index').Plugin;
-export const jsonPrefix: import("../types").Plugin;
+export function jsonPrefixPlugin(jsonPrefix: string): import('../index.js').Plugin;
+export const jsonPrefix: import("../types.js").Plugin;

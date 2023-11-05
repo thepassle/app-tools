@@ -2,9 +2,9 @@
  * @param {{
  *  collapsed?: boolean
  * }} options
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function loggerPlugin({ collapsed }?: {
     collapsed?: boolean;
-}): import('../index').Plugin;
-export const logger: import("../types").Plugin;
+}): import('../index.js').Plugin;
+export const logger: import("../types.js").Plugin;

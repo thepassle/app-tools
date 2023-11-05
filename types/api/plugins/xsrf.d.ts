@@ -3,10 +3,10 @@
  *  xsrfCookieName?: string,
  *  xsrfHeaderName?: string,
  * }} options
- * @returns {import('../index').Plugin}
+ * @returns {import('../index.js').Plugin}
  */
 export function xsrfPlugin({ xsrfCookieName, xsrfHeaderName }?: {
     xsrfCookieName?: string;
     xsrfHeaderName?: string;
-}): import('../index').Plugin;
-export const xsrf: import("../types").Plugin;
+}): import('../index.js').Plugin;
+export const xsrf: import("../types.js").Plugin;
