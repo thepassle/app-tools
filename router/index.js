@@ -51,7 +51,7 @@ export class Router extends EventTarget {
     log('Initialized routes', this.routes);
 
     queueMicrotask(() => {
-      this.navigate(new URL(window.location.href));
+      this.navigate(new URL(window.location.href), { replace: true });
     });
     window.addEventListener('popstate', this._onPopState);
     window.addEventListener('click', this._onAnchorClick);
@@ -167,7 +167,8 @@ export class Router extends EventTarget {
   /**
    * @param {string | URL} url The URL to navigate to.
    * @param {{
-   *    backNav?: boolean
+   *    backNav?: boolean,
+   *    replace?: boolean,
    *  }} options options An options object to configure the navigation. The backNav property specifies whether the navigation is a backward navigation, which doesn't push the navigation into browser nav history.
    */
   async navigate(url, options = {}) {
@@ -214,9 +215,12 @@ export class Router extends EventTarget {
       }
     }
 
-    if (!options.backNav) {
+    if (options?.replace) {
+      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    } else if (!options.backNav) {
       window.history.pushState(null, '', `${url.pathname}${url.search}${url.hash}`);
     }
+
     document.title = this.context.title;
     this._notifyUrlChanged();
 
