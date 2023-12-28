@@ -2,6 +2,10 @@
 
 This project follows **Semantic Versioning** (SemVer). [Visit the SemVer website](http://semver.org/) to learn more about it.
 
+## 0.9.12 (2023-12-28)
+
+- **[router]** Fixed condition for `offline` plugin
+
 ## 0.9.11 (2023-12-15)
 
 - **[router]** Fixed browser back behavior after refreshing
