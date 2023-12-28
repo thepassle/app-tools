@@ -7,7 +7,7 @@ export function offlinePlugin(offlineRoute = '/offline') {
   return {
     name: 'offline',
     shouldNavigate: () => ({
-      condition: () => !navigator.onLine,
+      condition: () => navigator.onLine,
       redirect: offlineRoute,
     })
   }
