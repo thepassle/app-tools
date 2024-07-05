@@ -434,6 +434,7 @@ const router = new Router({
   plugins: [
     {
       shouldNavigate: (context) => ({
+        name: 'block access',
         condition: () => false,
         redirect: '/'
       }),
@@ -447,6 +448,7 @@ const router = new Router({
   ]
 });
 ```
+Add a `name` to your plugin to help with logging and debugging your code.
 
 All plugins have access to the `context` object for the current route. Given the following route, the context includes:
 
@@ -473,6 +475,7 @@ Can be used to protect routes based on a condition function. Should return an ob
 ```js
 const myPlugin = {
   shouldNavigate: (context) => ({
+    name: 'myAdminGuard',
     /** A condition function to determine whether or not the navigation should take place */
     condition: () => state.user.isAdmin,
     /** Where to send the user in case the condition is false */
