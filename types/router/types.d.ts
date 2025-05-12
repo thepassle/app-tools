@@ -3,12 +3,13 @@ export interface Config {
     plugins?: Plugin[];
     routes: RouteDefinition[];
 }
+export interface ShouldNavigateResult {
+    redirect: string;
+    condition: (() => boolean) | (() => Promise<boolean>);
+}
 export interface Plugin {
     name: string;
-    shouldNavigate?: (context: Context) => {
-        redirect: string;
-        condition: () => boolean | (() => Promise<Boolean>);
-    };
+    shouldNavigate?: ((context: Context) => ShouldNavigateResult) | ((context: Context) => Promise<ShouldNavigateResult>);
     beforeNavigation?: (context: Context) => void;
     afterNavigation?: (context: Context) => void;
 }
