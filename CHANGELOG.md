@@ -2,6 +2,12 @@
 
 This project follows **Semantic Versioning** (SemVer). [Visit the SemVer website](http://semver.org/) to learn more about it.
 
+## 0.9.13 (2025-05-13)
+
+- **[router]** Fixed types of `shouldNavigate`
+- **[router]** Fixed types of `condition` property
+- **[router]** Fixed redirect behavior
+
 ## 0.9.12 (2023-12-28)
 
 - **[router]** Fixed condition for `offline` plugin
