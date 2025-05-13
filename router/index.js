@@ -182,23 +182,29 @@ export class Router extends EventTarget {
     /** @type {Plugin[]} */
     let plugins = this._collectPlugins(route);
 
-    for (const plugin of plugins) {
-      try {
-        const result = await plugin?.shouldNavigate?.(this.context);
-        if (result) {
-          const condition = await result.condition();
-          if (!condition) {
-            url = new URL(result.redirect, this.baseUrl);
-            route = this._matchRoute(url) || this._matchRoute(this.fallback);
-            plugins = this._collectPlugins(route);
-            log('Redirecting', { context: this.context, route: this.route });
+    let redirecting;
+    do {
+      redirecting = false;
+      for (const plugin of plugins) {
+        try {
+          const result = await plugin?.shouldNavigate?.(this.context);
+          if (result) {
+            const condition = await result.condition();
+            if (!condition) {
+              url = new URL(result.redirect, this.baseUrl);
+              route = this._matchRoute(url) || this._matchRoute(this.fallback);
+              plugins = this._collectPlugins(route);
+              log("Redirecting", { context: this.context, route: this.route });
+              redirecting = true;
+              break;
+            }
           }
+        } catch (e) {
+          log(`Plugin "${plugin.name}" error on shouldNavigate hook`, e);
+          throw e;
         }
-      } catch(e) {
-        log(`Plugin "${plugin.name}" error on shouldNavigate hook`, e);
-        throw e;
       }
-    }
+    } while (redirecting);
 
     this.route = route;
 
