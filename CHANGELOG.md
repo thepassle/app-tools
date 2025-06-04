@@ -2,6 +2,10 @@
 
 This project follows **Semantic Versioning** (SemVer). [Visit the SemVer website](http://semver.org/) to learn more about it.
 
+## 0.10.0 (2025-04-06)
+
+- **[state]** Added plugin functionality
+
 ## 0.9.13 (2025-05-13)
 
 - **[router]** Fixed types of `shouldNavigate`

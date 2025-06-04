@@ -52,11 +52,13 @@ export class Router extends EventTarget {
     /**
      * @param {string | URL} url The URL to navigate to.
      * @param {{
-     *    backNav?: boolean
+     *    backNav?: boolean,
+     *    replace?: boolean,
      *  }} options options An options object to configure the navigation. The backNav property specifies whether the navigation is a backward navigation, which doesn't push the navigation into browser nav history.
      */
     navigate(url: string | URL, options?: {
         backNav?: boolean;
+        replace?: boolean;
     }): Promise<void>;
     route: import("./types.js").Route;
 }

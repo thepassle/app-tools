@@ -26,9 +26,11 @@ export class StateEvent<T> extends Event {
 export class State<T> extends EventTarget {
     /**
      * @param {T} initialState
-     * @param {Array<Plugin<T>>} [plugins=[]]
+     * @param {Array<{ update: (prevState: T, newState: T) => T }>} [plugins=[]]
      */
-    constructor(initialState: T, plugins?: Array<Plugin<T>>);
+    constructor(initialState: T, plugins?: {
+        update: (prevState: T, newState: T) => T;
+    }[]);
     /**
      * @param {T | ((prevState: T) => T)} state
      * @param {boolean} [broadcast=true]
