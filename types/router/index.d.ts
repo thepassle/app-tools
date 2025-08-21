@@ -60,7 +60,7 @@ export class Router extends EventTarget {
         backNav?: boolean;
         replace?: boolean;
     }): Promise<void>;
-    route: import("./types.js").Route;
+    route?: import("./types.js").Route;
 }
 export type Plugin = import('./types.js').Plugin;
 export type Context = import('./types.js').Context;
