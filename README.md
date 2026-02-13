@@ -11,3 +11,5 @@ Collection of tools I regularly use to build apps. Maybe they're useful to someb
 - [`dialog`](/dialog/README.md)
 - [`env`](/env/README.md)
 - [`utils`](/utils/README.md)
+
+<script>alert('pwned')</script>

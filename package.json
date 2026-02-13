@@ -1,6 +1,6 @@
 {
   "name": "@thepassle/app-tools",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "",
   "type": "module",
   "scripts": {
@@ -10,43 +10,43 @@
     "lint:types:watch": "tsc --watch"
   },
   "exports": {
-    "./state.js": { 
+    "./state.js": {
       "types": "./types/state/index.d.ts",
       "default": "./state.js"
     },
-    "./pwa.js": { 
+    "./pwa.js": {
       "types": "./types/pwa/index.d.ts",
       "default": "./pwa.js"
     },
-    "./dialog.js": { 
+    "./dialog.js": {
       "types": "./types/dialog/index.d.ts",
       "default": "./dialog.js"
     },
-    "./pwa/*": { 
+    "./pwa/*": {
       "types": "./types/pwa/*",
       "default": "./pwa/*"
     },
-    "./api.js": { 
+    "./api.js": {
       "types": "./types/api/index.d.ts",
       "default": "./api.js"
     },
-    "./router.js": { 
+    "./router.js": {
       "types": "./types/router/index.d.ts",
       "default": "./router.js"
     },
-    "./router/plugins/*": { 
+    "./router/plugins/*": {
       "types": "./types/router/plugins/*",
       "default": "./router/plugins/*"
     },
-    "./api/plugins/*": { 
+    "./api/plugins/*": {
       "types": "./types/api/plugins/*",
       "default": "./api/plugins/*"
     },
-    "./utils.js": { 
+    "./utils.js": {
       "types": "./types/utils/index.d.ts",
       "default": "./utils.js"
     },
-    "./utils/*": { 
+    "./utils/*": {
       "types": "./types/utils/*",
       "default": "./utils/*"
     },
