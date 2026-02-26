@@ -11,31 +11,43 @@ npm i -S @thepassle/app-tools
 ## Usage
 
 ```js
-import { Api } from '@thepassle/app-tools/api.js';
+import { Api } from "@thepassle/app-tools/api.js";
 
 /** Using defaults: */
 const api = new Api();
 
 /** Or with configuration: */
 const api = new Api({
-  baseURL: 'https://api.foo.com',
-  responseType: 'text',
+  baseURL: "https://api.foo.com",
+  responseType: "text",
   plugins: [
     {
-      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
-      handleError: (e) => true
-    }
-  ]
+      handleError: (e) => true,
+    },
+  ],
 });
 
-const user = await api.get('/users/1');
-await api.post('/form/submit', { name: 'John Doe', email: 'johndoe@internet.com' });
+const user = await api.get("/users/1");
+await api.post("/form/submit", {
+  name: "John Doe",
+  email: "johndoe@internet.com",
+});
 
 try {
-  await api.get('/foo');
-} catch(e) {
+  await api.get("/foo");
+} catch (e) {
   console.log(e); // StatusError
   e.message; // the `statusText` of the `response`
   e.response; // access the `response`
@@ -50,61 +62,96 @@ By default `api` will throw an error if a response is not ok (`!response.ok`). I
 
 Use plugins to customize your requests to fit your needs
 
+### `retry`
+
+```js
+import { retry } from "@thepassle/app-tools/api/plugins/retry.js";
+
+/** Retries failed requests up to 5 times with exponential backoff */
+api.get(url, { plugins: [retry()] });
+
+/** Or with custom options: */
+api.get(url, {
+  plugins: [
+    retry({
+      maxRetries: 3,
+      delays: [500, 1000, 2000],
+      shouldRetry: (e) => e.message !== "AbortError",
+    }),
+  ],
+});
+```
+
 ### `logger`
 
 ```js
-import { logger, loggerPlugin } from '@thepassle/app-tools/api/plugins/logger.js';
+import {
+  logger,
+  loggerPlugin,
+} from "@thepassle/app-tools/api/plugins/logger.js";
 
 /** Logs metadata to the console */
-api.get(url, {plugins: [logger]});
+api.get(url, { plugins: [logger] });
 
 /** Or */
-const logger = loggerPlugin({collapsed: false});
-api.get(url, {plugins: [logger]});
+const logger = loggerPlugin({ collapsed: false });
+api.get(url, { plugins: [logger] });
 ```
 
 ### `cache`
 
 ```js
-import { cache, cachePlugin } from '@thepassle/app-tools/api/plugins/cache.js';
+import { cache, cachePlugin } from "@thepassle/app-tools/api/plugins/cache.js";
 
 /** Caches the response for a default of 10 minutes */
-api.get(url, {plugins: [cache]});
+api.get(url, { plugins: [cache] });
 
 /** Or */
-const cache = cachePlugin({maxAge: 1000});
-api.get(url, {plugins: [cache]});
+const cache = cachePlugin({ maxAge: 1000 });
+api.get(url, { plugins: [cache] });
 ```
 
 ### `debounce`
 
 ```js
-import { debounce, debouncePlugin } from '@thepassle/app-tools/api/plugins/debounce.js';
+import {
+  debounce,
+  debouncePlugin,
+} from "@thepassle/app-tools/api/plugins/debounce.js";
 
 /** Debounces the response for a default of 1000 ms */
-api.get(url, {plugins: [debounce]});
+api.get(url, { plugins: [debounce] });
 
 /** Or */
-const debounce = debouncePlugin({maxAge: 2000});
-api.get(url, {plugins: [debounce]});
+const debounce = debouncePlugin({ maxAge: 2000 });
+api.get(url, { plugins: [debounce] });
 ```
 
 **Note:** The `debounce` plugin wraps the `fetchFn` in a debouncer. `await`ing the call will cause the debounce to be awaited. E.g.:
 
 ```js
-api.get(url, {plugins: [debounce]}).then(() => { console.log(1) });
-api.get(url, {plugins: [debounce]}).then(() => { console.log(2) });
+api.get(url, { plugins: [debounce] }).then(() => {
+  console.log(1);
+});
+api.get(url, { plugins: [debounce] }).then(() => {
+  console.log(2);
+});
 
-// Output: 
+// Output:
 // 2
 ```
 
 But awaiting it will become:
-```js
-await api.get(url, {plugins: [debounce]}).then(() => { console.log(1) });
-await api.get(url, {plugins: [debounce]}).then(() => { console.log(2) });
 
-// Output: 
+```js
+await api.get(url, { plugins: [debounce] }).then(() => {
+  console.log(1);
+});
+await api.get(url, { plugins: [debounce] }).then(() => {
+  console.log(2);
+});
+
+// Output:
 // 1
 // 2
 ```
@@ -112,56 +159,59 @@ await api.get(url, {plugins: [debounce]}).then(() => { console.log(2) });
 ### `abort`
 
 ```js
-import { abort } from '@thepassle/app-tools/api/plugins/abort.js';
+import { abort } from "@thepassle/app-tools/api/plugins/abort.js";
 
 /** Aborts previous, unfinished requests via an AbortController if requests are fired in quick succession, like spammy clicks on buttons */
-api.get(url, {plugins: [abort]});
+api.get(url, { plugins: [abort] });
 ```
 
 ### `mock`, `delay`
 
 ```js
-import { mock } from '@thepassle/app-tools/api/plugins/mock.js';
-import { delay, delayPlugin } from '@thepassle/app-tools/api/plugins/delay.js';
+import { mock } from "@thepassle/app-tools/api/plugins/mock.js";
+import { delay, delayPlugin } from "@thepassle/app-tools/api/plugins/delay.js";
 
 /** Easily mock requests during development using the native `Response` object */
 api.get(url, {
   plugins: [
-    mock(() => new Response(JSON.stringify({foo: 'bar'}))),
-    delay // defaults to 1000ms
-  ]
+    mock(() => new Response(JSON.stringify({ foo: "bar" }))),
+    delay, // defaults to 1000ms
+  ],
 });
 
 /** Or */
 const delay = delayPlugin(2000);
-api.get(url, {plugins: [delay]});
+api.get(url, { plugins: [delay] });
 ```
 
 ### `jsonPrefix`
 
 ```js
-import { jsonPrefix, jsonPrefixPlugin } from '@thepassle/app-tools/api/plugins/jsonPrefix.js';
+import {
+  jsonPrefix,
+  jsonPrefixPlugin,
+} from "@thepassle/app-tools/api/plugins/jsonPrefix.js";
 
 /** Add plugins to run on all requests */
 const api = new Api({ plugins: [jsonPrefix] });
 
 /** Or */
-const jsonPrefix = jsonPrefixPlugin('<prefix>');
+const jsonPrefix = jsonPrefixPlugin("<prefix>");
 const api = new Api({ plugins: [jsonPRefix] });
 ```
 
 ### `xsrf`
 
 ```js
-import { xsrf, xsrfPlugin } from '@thepassle/app-tools/api/plugins/xsrf.js';
+import { xsrf, xsrfPlugin } from "@thepassle/app-tools/api/plugins/xsrf.js";
 
 /** Add plugins to run on all requests */
 const api = new Api({ plugins: [xsrf] });
 
 /** Or */
 const xsrf = xsrfPlugin({
-  xsrfCookieName: '',
-  xsrfHeaderName: ''
+  xsrfCookieName: "",
+  xsrfHeaderName: "",
 });
 const api = new Api({ plugins: [xsrf] });
 ```
@@ -169,7 +219,7 @@ const api = new Api({ plugins: [xsrf] });
 ### Other
 
 ```js
-import { logger } from '@thepassle/app-tools/api/plugins/logger.js';
+import { logger } from "@thepassle/app-tools/api/plugins/logger.js";
 
 /** Add plugins to run on all requests */
 const api = new Api({ plugins: [logoutOnUnauthorized, logger] });
@@ -187,10 +237,19 @@ api.put(url, data, opts);
 api.patch(url, data, opts);
 
 api.addPlugin({
-  beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+  beforeFetch: ({
+    url,
+    headers,
+    fetchFn,
+    responseType,
+    baseURL,
+    method,
+    opts,
+    data,
+  }) => {},
   afterFetch: (res) => res,
   transform: (data) => data,
-  handleError: (e) => true
+  handleError: (e) => true,
 });
 ```
 
@@ -198,16 +257,25 @@ api.addPlugin({
 
 ```js
 api.get(url, {
-  baseURL: 'https://api.foo.com',
-  responseType: 'text',
-  params: { foo: 'bar' },
+  baseURL: "https://api.foo.com",
+  responseType: "text",
+  params: { foo: "bar" },
   plugins: [
     {
-      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
-      handleError: (e) => true
-    }
+      handleError: (e) => true,
+    },
   ],
 
   // Also supports all the options of the native fetch API
@@ -222,7 +290,7 @@ api.get(url, {
 BaseURL to resolve all requests from. Can be set globally when instantiating a new `Api` instance, or on a per request basis. When set on a per request basis, will override the globally set baseURL (if set)
 
 ```js
-api.get(url, { baseURL: 'https://api.foo.com' });
+api.get(url, { baseURL: "https://api.foo.com" });
 ```
 
 ### `responseType`
@@ -230,7 +298,7 @@ api.get(url, { baseURL: 'https://api.foo.com' });
 Overwrite the default responseType (`'json'`)
 
 ```js
-api.get(url, { responseType: 'text' });
+api.get(url, { responseType: "text" });
 ```
 
 ### `params`
@@ -238,7 +306,7 @@ api.get(url, { responseType: 'text' });
 An object to be queryParam-ified and added to the request url
 
 ```js
-api.get(url, { params: { foo: 'bar' } });
+api.get(url, { params: { foo: "bar" } });
 ```
 
 ### `plugins`
@@ -249,13 +317,22 @@ An array of plugins.
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
-      handleError: (e) => true
-    }
-  ]
-})
+      handleError: (e) => true,
+    },
+  ],
+});
 ```
 
 ## Plugins
@@ -266,12 +343,21 @@ You can also use plugins. You can add plugins on a per-request basis, or you can
 const api = new Api({
   plugins: [
     {
-      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
-      handleError: (e) => true
-    }
-  ]
+      handleError: (e) => true,
+    },
+  ],
 });
 ```
 
@@ -279,7 +365,7 @@ You can also dynamically add plugins:
 
 ```js
 api.addPlugin({
-  afterFetch: (res) => res
+  afterFetch: (res) => res,
 });
 ```
 
@@ -289,12 +375,21 @@ Or you can add them on a per request basis:
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => {},
       afterFetch: (res) => res,
       transform: (data) => data,
-      handleError: (e) => true
-    }
-  ]
+      handleError: (e) => true,
+    },
+  ],
 });
 ```
 
@@ -304,30 +399,38 @@ Run logic before the actual `fetch` call happens, or alter/modify the meta infor
 If you want to alter or modify the meta information of a request, make sure to return the value.
 
 ```js
-api.get('/foo', {
-  plugins: [{
-    beforeFetch: (meta) => ({...meta, url: '/bar'})
-  }]
+api.get("/foo", {
+  plugins: [
+    {
+      beforeFetch: (meta) => ({ ...meta, url: "/bar" }),
+    },
+  ],
 });
 
 // RESULT: url `/bar` gets called instead of `/foo`
 ```
 
 If you dont want to alter or modify any meta information of the request, you dont have to return anything.
+
 ```js
-{ 
-  beforeFetch: ({url}) => {
-    console.log(url)
-  } 
+{
+  beforeFetch: ({ url }) => {
+    console.log(url);
+  };
 }
 ```
 
 ### `afterFetch`
 
 Runs immediately after the `fetch` call happened. `afterFetch` should always return a `Response`:
+
 ```js
-{ afterFetch: (res) => res; }
-{ afterFetch: (res) => new Response(JSON.stringify({foo: 'bar'}), res); }
+{
+  afterFetch: (res) => res;
+}
+{
+  afterFetch: (res) => new Response(JSON.stringify({ foo: "bar" }), res);
+}
 ```
 
 ### `transform`
@@ -336,7 +439,9 @@ Runs after the `Response` object has been handled according to the `responseType
 Should always return the data.
 
 ```js
-{ transform: (data) => data }
+{
+  transform: (data) => data;
+}
 ```
 
 ### `handleError`
@@ -344,7 +449,9 @@ Should always return the data.
 Whether or not an error should throw. Return `true` if an error should throw, return `false` if an error should be ignored.
 
 ```js
-{ handleError: (e) => e.message !== 'AbortError' }
+{
+  handleError: (e) => e.message !== "AbortError";
+}
 ```
 
 ### Plugin Examples
@@ -360,8 +467,8 @@ function requestLogger() {
     },
     afterFetch: () => {
       console.log(`Request took ${Date.now() - start}ms`);
-    }
-  }
+    },
+  };
 }
 
 api.addPlugin(requestLogger());
@@ -373,15 +480,24 @@ api.addPlugin(requestLogger());
 api.get(url, {
   plugins: [
     {
-      beforeFetch: ({url, headers, fetchFn, responseType, baseURL, method, opts, data}) => {},
+      beforeFetch: ({
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => {},
       afterFetch: (res) => {
-        if(res.status === 401 || res.status === 403) {
+        if (res.status === 401 || res.status === 403) {
           logout();
         }
         return res;
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 ```
 
@@ -395,12 +511,12 @@ const myPlugin = {
     const clone = originalResponse.clone();
     let data = await clone.text(); // or `.json()` etc
 
-    data = data.replaceAll('foo', 'bar');
-    
+    data = data.replaceAll("foo", "bar");
+
     // Always make sure to return a `Response`
     return new Response(data, originalResponse);
-  }
-}
+  },
+};
 
 api.addPlugin(myPlugin);
 ```
@@ -423,9 +539,9 @@ You can also overwrite the `fetch` implementation to use:
 api.addPlugin({
   beforeFetch: (meta) => ({
     ...meta,
-    fetchFn: () => Promise.resolve(new Response('{}'))
-  })
-})
+    fetchFn: () => Promise.resolve(new Response("{}")),
+  }),
+});
 ```
 
 Do note that if you use multiple plugins that overwrite the `fetchFn`, the last plugin to overwrite the `fetchFn` will win, there can only be one `fetchFn`.
@@ -436,8 +552,8 @@ Do note that if you use multiple plugins that overwrite the `fetchFn`, the last 
 api.addPlugin({
   // Adds a `.foo` property to all of your response data
   transform: (data) => {
-    data.foo = 'bar';
+    data.foo = "bar";
     return data;
-  }
-})
+  },
+});
 ```

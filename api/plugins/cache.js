@@ -4,20 +4,23 @@ const TEN_MINUTES = 1000 * 60 * 10;
  * @param {{maxAge?: number}} options
  * @returns {import('../index.js').Plugin}
  */
-export function cachePlugin({maxAge = TEN_MINUTES} = {}) {
+export function cachePlugin({ maxAge = TEN_MINUTES } = {}) {
   let requestId;
   const cache = new Map();
 
   return {
-    name: 'cache',
+    name: "cache",
     beforeFetch: (meta) => {
       const { method, url } = meta;
       requestId = `${method}:${url}`;
 
-      if(cache.has(requestId)) {
+      if (cache.has(requestId)) {
         const cached = cache.get(requestId);
-        if(cached.updatedAt > Date.now() - (maxAge)) {
-          meta.fetchFn = () => Promise.resolve(new Response(JSON.stringify(cached.data), {status: 200}));
+        if (cached.updatedAt > Date.now() - maxAge) {
+          meta.fetchFn = () =>
+            Promise.resolve(
+              new Response(JSON.stringify(cached.data), { status: 200 }),
+            );
           return meta;
         }
       }
@@ -28,12 +31,12 @@ export function cachePlugin({maxAge = TEN_MINUTES} = {}) {
 
       cache.set(requestId, {
         updatedAt: Date.now(),
-        data
+        data,
       });
 
       return res;
-    }
-  }
+    },
+  };
 }
 
 export const cache = cachePlugin();
