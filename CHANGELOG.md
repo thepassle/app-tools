@@ -2,6 +2,15 @@
 
 This project follows **Semantic Versioning** (SemVer). [Visit the SemVer website](http://semver.org/) to learn more about it.
 
+## 1.0.1 (2025-02-26)
+
+- **[api]** Bugfix in cache plugin
+
+## 1.0.0 (2025-02-26)
+
+- Initial release
+- **[api]** Add `retry` plugin
+
 ## 0.10.0 (2025-04-06)
 
 - **[state]** Added plugin functionality

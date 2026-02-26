@@ -1,19 +1,38 @@
 const TEN_MINUTES = 1000 * 60 * 10;
+const DEFAULT_MAX_SIZE = 100;
 
 /**
- * @param {{maxAge?: number}} options
+ * @param {{maxAge?: number, maxSize?: number}} options
  * @returns {import('../index.js').Plugin}
  */
-export function cachePlugin({ maxAge = TEN_MINUTES } = {}) {
-  let requestId;
+export function cachePlugin({
+  maxAge = TEN_MINUTES,
+  maxSize = DEFAULT_MAX_SIZE,
+} = {}) {
   const cache = new Map();
+
+  function evict() {
+    const now = Date.now();
+    for (const [key, value] of cache) {
+      if (value.updatedAt <= now - maxAge) {
+        cache.delete(key);
+      }
+    }
+    // if still over maxSize, evict oldest entries
+    if (cache.size > maxSize) {
+      const overflow = cache.size - maxSize;
+      const keys = cache.keys();
+      for (let i = 0; i < overflow; i++) {
+        cache.delete(keys.next().value);
+      }
+    }
+  }
 
   return {
     name: "cache",
     beforeFetch: (meta) => {
       const { method, url } = meta;
-      requestId = `${method}:${url}`;
-
+      const requestId = `${method}:${url}`;
       if (cache.has(requestId)) {
         const cached = cache.get(requestId);
         if (cached.updatedAt > Date.now() - maxAge) {
@@ -25,15 +44,12 @@ export function cachePlugin({ maxAge = TEN_MINUTES } = {}) {
         }
       }
     },
-    afterFetch: async (res) => {
-      const clone = await res.clone();
+    afterFetch: async (res, meta) => {
+      const requestId = `${meta.method}:${meta.url}`;
+      const clone = res.clone();
       const data = await clone.json();
-
-      cache.set(requestId, {
-        updatedAt: Date.now(),
-        data,
-      });
-
+      cache.set(requestId, { updatedAt: Date.now(), data });
+      evict();
       return res;
     },
   };

@@ -1,4 +1,4 @@
-export type ResponseType = 'text'|'json'|'stream'|'blob'|'arrayBuffer'|'formData'|'stream';
+export type ResponseType = 'text' | 'json' | 'stream' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';
 
 export interface Config {
   plugins?: Plugin[];
@@ -9,11 +9,11 @@ export interface Config {
 export type BodyMethod = <R>(url: string, data?: object, opts?: RequestOptions) => Promise<R>;
 export type BodylessMethod = <R>(url: string, opts?: RequestOptions) => Promise<R>;
 
-export type Method = 'GET'|'DELETE'|'HEAD'|'OPTIONS'|'POST'|'PUT'|'PATCH';
+export type Method = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
 
 export interface Plugin {
   beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void;
-  afterFetch?: (res: Response) => void | Promise<void> | Response | Promise<Response>;
+  afterFetch?: (res: Response, meta: MetaParams) => void | Promise<void> | Response | Promise<Response>;
   transform?: (data: any) => any;
   name: string;
   handleError?: (e: Error) => boolean;
