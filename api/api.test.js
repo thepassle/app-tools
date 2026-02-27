@@ -92,9 +92,9 @@ describe("Api", () => {
 
       expect(afterStub.called).to.equal(true);
       const afterArgs = afterStub.getCall(0).firstArg;
-      expect(afterArgs.status).to.equal(200);
-      expect(afterArgs.ok).to.equal(true);
-      expect(afterArgs.statusText).to.equal("");
+      expect(afterArgs.response.status).to.equal(200);
+      expect(afterArgs.response.ok).to.equal(true);
+      expect(afterArgs.response.statusText).to.equal("");
     });
 
     it("overrides MetaParams", async () => {
@@ -230,10 +230,10 @@ describe("Api", () => {
             mock(response()),
             {
               name: "mock",
-              afterFetch: (res) => {
-                expect(res.status).to.equal(222);
-                expect(res.statusText).to.equal("foo");
-                return res;
+              afterFetch: ({ response }) => {
+                expect(response.status).to.equal(222);
+                expect(response.statusText).to.equal("foo");
+                return response;
               },
             },
           ],
@@ -249,10 +249,10 @@ describe("Api", () => {
             mock(response()),
             {
               name: "mock",
-              afterFetch: (res) => {
-                expect(res.status).to.equal(222);
-                expect(res.statusText).to.equal("foo");
-                return res;
+              afterFetch: ({ response }) => {
+                expect(response.status).to.equal(222);
+                expect(response.statusText).to.equal("foo");
+                return response;
               },
             },
           ],

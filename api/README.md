@@ -32,7 +32,17 @@ const api = new Api({
         opts,
         data,
       }) => {},
-      afterFetch: (res) => res,
+      afterFetch: ({
+        response,
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => response,
       transform: (data) => data,
       handleError: (e) => true,
     },
@@ -247,7 +257,17 @@ api.addPlugin({
     opts,
     data,
   }) => {},
-  afterFetch: (res) => res,
+  afterFetch: ({
+    response,
+    url,
+    headers,
+    fetchFn,
+    responseType,
+    baseURL,
+    method,
+    opts,
+    data,
+  }) => response,
   transform: (data) => data,
   handleError: (e) => true,
 });
@@ -272,7 +292,17 @@ api.get(url, {
         opts,
         data,
       }) => {},
-      afterFetch: (res) => res,
+      afterFetch: ({
+        response,
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => response,
       transform: (data) => data,
       handleError: (e) => true,
     },
@@ -327,7 +357,17 @@ api.get(url, {
         opts,
         data,
       }) => {},
-      afterFetch: (res) => res,
+      afterFetch: ({
+        response,
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => response,
       transform: (data) => data,
       handleError: (e) => true,
     },
@@ -353,7 +393,17 @@ const api = new Api({
         opts,
         data,
       }) => {},
-      afterFetch: (res) => res,
+      afterFetch: ({
+        response,
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => response,
       transform: (data) => data,
       handleError: (e) => true,
     },
@@ -365,7 +415,7 @@ You can also dynamically add plugins:
 
 ```js
 api.addPlugin({
-  afterFetch: (res) => res,
+  afterFetch: ({ response }) => response,
 });
 ```
 
@@ -385,7 +435,17 @@ api.get(url, {
         opts,
         data,
       }) => {},
-      afterFetch: (res) => res,
+      afterFetch: ({
+        response,
+        url,
+        headers,
+        fetchFn,
+        responseType,
+        baseURL,
+        method,
+        opts,
+        data,
+      }) => response,
       transform: (data) => data,
       handleError: (e) => true,
     },
@@ -426,10 +486,21 @@ Runs immediately after the `fetch` call happened. `afterFetch` should always ret
 
 ```js
 {
-  afterFetch: (res) => res;
+  afterFetch: ({
+    response,
+    url,
+    headers,
+    fetchFn,
+    responseType,
+    baseURL,
+    method,
+    opts,
+    data,
+  }) => response;
 }
 {
-  afterFetch: (res) => new Response(JSON.stringify({ foo: "bar" }), res);
+  afterFetch: ({ response }) =>
+    new Response(JSON.stringify({ foo: "bar" }), response);
 }
 ```
 
@@ -490,11 +561,11 @@ api.get(url, {
         opts,
         data,
       }) => {},
-      afterFetch: (res) => {
-        if (res.status === 401 || res.status === 403) {
+      afterFetch: ({ response }) => {
+        if (response.status === 401 || response.status === 403) {
           logout();
         }
-        return res;
+        return response;
       },
     },
   ],
@@ -507,7 +578,7 @@ If you want to access the response body of your response in a plugin, make sure 
 
 ```js
 const myPlugin = {
-  afterFetch: async (originalResponse) => {
+  afterFetch: async ({ response: originalResponse }) => {
     const clone = originalResponse.clone();
     let data = await clone.text(); // or `.json()` etc
 
@@ -527,7 +598,7 @@ You can also overwrite the response entirely by returning a new `Response`
 
 ```js
 api.addPlugin({
-  afterFetch: async (res) => new Response(JSON.stringify({foo: 'bar'}), res);
+  afterFetch: async ({response}) => new Response(JSON.stringify({foo: 'bar'}), response);
 });
 ```
 

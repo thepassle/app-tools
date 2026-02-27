@@ -1,27 +1,31 @@
-/** 
+/**
  * @param {{
  *  collapsed?: boolean
  * }} options
- * @returns {import('../index.js').Plugin} 
+ * @returns {import('../index.js').Plugin}
  */
-export function loggerPlugin({collapsed = true} = {}) {
+export function loggerPlugin({ collapsed = true } = {}) {
   let m;
   let start;
-  const group = collapsed ? 'groupCollapsed' : 'group';
+  const group = collapsed ? "groupCollapsed" : "group";
   return {
-    name: 'logger',
+    name: "logger",
     beforeFetch: (meta) => {
-      console[group](`[START] [${new Date().toLocaleTimeString()}] [${meta.method}] "${meta.url}"`);
+      console[group](
+        `[START] [${new Date().toLocaleTimeString()}] [${meta.method}] "${meta.url}"`,
+      );
       console.table([meta]);
-      console.groupEnd()
+      console.groupEnd();
       start = Date.now();
       m = meta;
     },
-    afterFetch: (r) => {
-      console.log(`[END] [${m.method}] "${m.url}" Request took ${Date.now() - start}ms`);
-      return r;
-    }
-  }
+    afterFetch: ({ response }) => {
+      console.log(
+        `[END] [${m.method}] "${m.url}" Request took ${Date.now() - start}ms`,
+      );
+      return response;
+    },
+  };
 }
 
 export const logger = loggerPlugin();

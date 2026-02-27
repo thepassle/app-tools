@@ -13,10 +13,14 @@ export type Method = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'P
 
 export interface Plugin {
   beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void;
-  afterFetch?: (res: Response, meta: MetaParams) => void | Promise<void> | Response | Promise<Response>;
+  afterFetch?: (meta: AfterFetchParams) => void | Promise<void> | Response | Promise<Response>;
   transform?: (data: any) => any;
   name: string;
   handleError?: (e: Error) => boolean;
+}
+
+export interface AfterFetchParams extends MetaParams {
+  response: Response;
 }
 
 export interface CustomRequestOptions {

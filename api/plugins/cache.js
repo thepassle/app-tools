@@ -44,13 +44,13 @@ export function cachePlugin({
         }
       }
     },
-    afterFetch: async (res, meta) => {
-      const requestId = `${meta.method}:${meta.url}`;
-      const clone = res.clone();
+    afterFetch: async ({ response, method, url }) => {
+      const requestId = `${method}:${url}`;
+      const clone = response.clone();
       const data = await clone.json();
       cache.set(requestId, { updatedAt: Date.now(), data });
       evict();
-      return res;
+      return response;
     },
   };
 }

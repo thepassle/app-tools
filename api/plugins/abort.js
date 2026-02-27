@@ -6,12 +6,12 @@ export function abortPlugin() {
   const requests = new Map();
 
   return {
-    name: 'abort',
+    name: "abort",
     beforeFetch: (meta) => {
       const { method, url } = meta;
       requestId = `${method}:${url}`;
 
-      if(requests.has(requestId)) {
+      if (requests.has(requestId)) {
         const request = requests.get(requestId);
         request.abort();
       }
@@ -21,17 +21,17 @@ export function abortPlugin() {
         ...meta,
         opts: {
           ...meta.opts,
-          signal: requests.get(requestId).signal
-        }
+          signal: requests.get(requestId).signal,
+        },
       };
     },
-    afterFetch: (res) => {
+    afterFetch: ({ response }) => {
       requests.delete(requestId);
-      return res;
+      return response;
     },
     // return true if an error should throw, return false if an error should be ignored
-    handleError: ({name}) => name !== 'AbortError'
-  }
+    handleError: ({ name }) => name !== "AbortError",
+  };
 }
 
 export const abort = abortPlugin();

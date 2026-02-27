@@ -2,6 +2,10 @@
 
 This project follows **Semantic Versioning** (SemVer). [Visit the SemVer website](http://semver.org/) to learn more about it.
 
+## 1.1.0 (2025-02-27)
+
+- **[api]** Align params for `afterFetch`
+
 ## 1.0.1 (2025-02-26)
 
 - **[api]** Bugfix in cache plugin

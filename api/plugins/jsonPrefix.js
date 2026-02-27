@@ -5,23 +5,23 @@
 export function jsonPrefixPlugin(jsonPrefix) {
   let responseType;
   return {
-    name: 'jsonPrefix',
-    beforeFetch: ({responseType: type}) => {
+    name: "jsonPrefix",
+    beforeFetch: ({ responseType: type }) => {
       responseType = type;
     },
-    afterFetch: async (res) => {
-      if(jsonPrefix && responseType === 'json') {
-        let responseAsText = await res.text();
-        
-        if(responseAsText.startsWith(jsonPrefix)) {
+    afterFetch: async ({ response }) => {
+      if (jsonPrefix && responseType === "json") {
+        let responseAsText = await response.text();
+
+        if (responseAsText.startsWith(jsonPrefix)) {
           responseAsText = responseAsText.substring(jsonPrefix.length);
         }
 
-        return new Response(responseAsText, res);
+        return new Response(responseAsText, response);
       }
-      return res;
-    }
-  }
+      return response;
+    },
+  };
 }
 
 export const jsonPrefix = jsonPrefixPlugin(`)]}',\n`);

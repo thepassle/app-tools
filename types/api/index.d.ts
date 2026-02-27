@@ -12,7 +12,7 @@
  *  plugins: [
  *    {
  *      beforeFetch: ({url, method, opts, data}) => {},
- *      afterFetch: (res) => res,
+ *      afterFetch: ({response}) => response,
  *    }
  *  ]
  *});

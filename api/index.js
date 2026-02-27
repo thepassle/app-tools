@@ -31,7 +31,7 @@ function handleStatus(response) {
  *  plugins: [
  *    {
  *      beforeFetch: ({url, method, opts, data}) => {},
- *      afterFetch: (res) => res,
+ *      afterFetch: ({response}) => response,
  *    }
  *  ]
  *});
@@ -131,22 +131,22 @@ export class Api {
         ...(opts?.signal ? { signal: opts.signal } : {}),
       })
         /** [PLUGINS - AFTERFETCH] */
-        .then(async (res) => {
+        .then(async (response) => {
           for (const plugin of plugins) {
             try {
-              const afterFetchResult =
-                (await plugin?.afterFetch?.(res, {
-                  responseType,
-                  headers,
-                  fetchFn,
-                  baseURL,
-                  url,
-                  method,
-                  opts,
-                  data,
-                })) ?? res;
+              const afterFetchResult = await plugin?.afterFetch?.({
+                responseType,
+                headers,
+                fetchFn,
+                baseURL,
+                url,
+                method,
+                opts,
+                data,
+                response,
+              });
               if (afterFetchResult) {
-                res = afterFetchResult;
+                response = afterFetchResult;
               }
             } catch (e) {
               log(`Plugin "${plugin.name}" error on afterFetch hook`);
@@ -154,12 +154,12 @@ export class Api {
             }
           }
 
-          return res;
+          return response;
         })
         /** [STATUS] */
         .then(handleStatus)
         /** [RESPONSETYPE] */
-        .then((res) => res[responseType]())
+        .then((response) => response[responseType]())
         .then(async (data) => {
           for (const plugin of plugins) {
             try {
