@@ -8,7 +8,7 @@ export type BodyMethod = <R>(url: string, data?: object, opts?: RequestOptions) 
 export type BodylessMethod = <R>(url: string, opts?: RequestOptions) => Promise<R>;
 export type Method = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
 export interface Plugin {
-    beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void;
+    beforeFetch?: (meta: MetaParams) => MetaParams | Promise<MetaParams> | void | Promise<void>;
     afterFetch?: (meta: AfterFetchParams) => void | Promise<void> | Response | Promise<Response>;
     transform?: (data: any) => any;
     name: string;
