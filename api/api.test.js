@@ -6,6 +6,7 @@ import { mock } from "./plugins/mock.js";
 import { xsrf } from "./plugins/xsrf.js";
 import { cache, cachePlugin } from "./plugins/cache.js";
 import { debouncePlugin } from "./plugins/debounce.js";
+import { concurrencyPlugin } from "./plugins/concurrency.js";
 import { abort } from "./plugins/abort.js";
 import { retry } from "./plugins/retry.js";
 
@@ -458,6 +459,108 @@ describe("Api", () => {
         } finally {
           delayStub.restore();
         }
+      });
+    });
+
+    describe("concurrency", () => {
+      it("limits concurrent requests", async () => {
+        const limit = 2;
+        const c = concurrencyPlugin(limit);
+        let active = 0;
+        let maxActive = 0;
+
+        fetchStub.restore();
+        fetchStub = stub(globalThis, "fetch").callsFake(async () => {
+          active++;
+          maxActive = Math.max(maxActive, active);
+          await sleep(50);
+          active--;
+          return new Response(JSON.stringify({ ok: true }), { status: 200 });
+        });
+
+        await Promise.all([
+          api.get("/1", { plugins: [c] }),
+          api.get("/2", { plugins: [c] }),
+          api.get("/3", { plugins: [c] }),
+          api.get("/4", { plugins: [c] }),
+          api.get("/5", { plugins: [c] }),
+        ]);
+
+        expect(fetchStub.callCount).to.equal(5);
+        expect(maxActive).to.equal(limit);
+      });
+
+      it("releases slot on failure", async () => {
+        const c = concurrencyPlugin(1);
+
+        fetchStub.restore();
+        fetchStub = stub(globalThis, "fetch");
+        fetchStub.onCall(0).rejects(new Error("fail"));
+        fetchStub
+          .onCall(1)
+          .resolves(
+            new Response(JSON.stringify({ foo: "bar" }), { status: 200 }),
+          );
+
+        // First request fails, but should release the slot
+        await api.get("/fail", { plugins: [c] }).catch(() => {});
+        const r = await api.get("/ok", { plugins: [c] });
+
+        expect(r.foo).to.equal("bar");
+        expect(fetchStub.callCount).to.equal(2);
+      });
+
+      it("defaults to 10 concurrent requests", async () => {
+        const c = concurrencyPlugin();
+        let active = 0;
+        let maxActive = 0;
+
+        fetchStub.restore();
+        fetchStub = stub(globalThis, "fetch").callsFake(async () => {
+          active++;
+          maxActive = Math.max(maxActive, active);
+          await sleep(30);
+          active--;
+          return new Response(JSON.stringify({}), { status: 200 });
+        });
+
+        const requests = Array.from({ length: 15 }, (_, i) =>
+          api.get(`/${i}`, { plugins: [c] }),
+        );
+        await Promise.all(requests);
+
+        expect(fetchStub.callCount).to.equal(15);
+        expect(maxActive).to.equal(10);
+      });
+
+      it("shares queue across separate api calls", async () => {
+        const limit = 2;
+        const c = concurrencyPlugin(limit);
+        let active = 0;
+        let maxActive = 0;
+
+        fetchStub.restore();
+        fetchStub = stub(globalThis, "fetch").callsFake(async () => {
+          active++;
+          maxActive = Math.max(maxActive, active);
+          await sleep(50);
+          active--;
+          return new Response(JSON.stringify({ ok: true }), { status: 200 });
+        });
+
+        const api1 = new Api({ plugins: [c] });
+        const api2 = new Api({ plugins: [c] });
+
+        await Promise.all([
+          api1.get("/1"),
+          api1.get("/2"),
+          api2.get("/3"),
+          api2.get("/4"),
+          api2.get("/5"),
+        ]);
+
+        expect(fetchStub.callCount).to.equal(5);
+        expect(maxActive).to.equal(limit);
       });
     });
   });

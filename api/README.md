@@ -175,6 +175,32 @@ import { abort } from "@thepassle/app-tools/api/plugins/abort.js";
 api.get(url, { plugins: [abort] });
 ```
 
+### `concurrency`
+
+```js
+import {
+  concurrency,
+  concurrencyPlugin,
+} from "@thepassle/app-tools/api/plugins/concurrency.js";
+
+/** Limits amount of concurrent requests to 10 by default */
+await Promise.all(
+  bigArray.map((url) => {
+    return api.get(url, { plugins: [concurrency] });
+  }),
+);
+
+/**
+ * Or customize the amount of concurrent requests
+ */
+const concurrency = concurrencyPlugin(20);
+await Promise.all(
+  bigArray.map((url) => {
+    return api.get(url, { plugins: [concurrency] });
+  }),
+);
+```
+
 ### `mock`, `delay`
 
 ```js
