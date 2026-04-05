@@ -433,6 +433,7 @@ const router = new Router({
 const router = new Router({
   plugins: [
     {
+      name: `Block access`
       shouldNavigate: (context) => ({
         condition: () => false,
         redirect: '/'
@@ -447,6 +448,7 @@ const router = new Router({
   ]
 });
 ```
+Inclue a `name` property to identify your plugin and help debugging
 
 All plugins have access to the `context` object for the current route. Given the following route, the context includes:
 
@@ -468,10 +470,11 @@ context.url; // URL instance of "www.my-website.com/users/123?foo=bar"
 
 ### `shouldNavigate`
 
-Can be used to protect routes based on a condition function. Should return an object containing a `condition` function, and a `redirect`. When the `condition` returns `false`, it will redirect to the path provided by `redirect`.
+Can be used to protect routes based on a condition function. Should return an object containing a `name` property, `condition` function, and a `redirect`. When the `condition` returns `false`, it will redirect to the path provided by `redirect`.
 
 ```js
 const myPlugin = {
+  name: 'Guard for Admin',
   shouldNavigate: (context) => ({
     /** A condition function to determine whether or not the navigation should take place */
     condition: () => state.user.isAdmin,
